@@ -136,8 +136,8 @@ def gaussian_method_of_moments( X_data, Y_data ):
 def main():
 
     X_data = [biased_x_point + 1 * (random() - 0.5)  for biased_x_point in range(50)]
-    Y_data = [ abs(gauss(x_point, 100, 25, 5) +  2 * (random() - 0.5)) for x_point in X_data]
-    fig, ax = plt.subplots()
+    Y_data = [ abs(gauss(x_point, 100, 25, 5) +  0 * (random() - 0.5)) for x_point in X_data]
+    fig, (ax, ax2, ax3) = plt.subplots(1,3, figsize=(15,4))
     ax.plot(X_data, Y_data, 'ko', label = "Data points")
     A, u, sigma = gaussian_regression(X_data, Y_data)
     print("Regression:")
@@ -145,15 +145,14 @@ def main():
     X = np.linspace(0,50,501)
     Y = [ gauss(x_point, A, u, sigma) for x_point in X]
     ax.plot(X, Y, 'blue', label = "Gaussian regression")
-    leg = ax.legend()
+    leg = ax.legend(loc = 'upper left', prop={'size':7})
+
     A, u, sigma = round(A, 8), round(u, 8), round(sigma, 8)
     #a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
-    ax.text(0.5, 1.06, "A: " + str(A) + ", mean: " + str(u) + ", sigma: " + str(sigma),
+    ax.text(0.45, 1.06, "A: " + str(A) + ", mean: " + str(u) + ", sigma: " + str(sigma),
         horizontalalignment='center', verticalalignment='center',
-        transform=ax.transAxes, color = 'green')
-    plt.show()
+        transform=ax.transAxes, color = 'blue')
 
-    fig2, ax2 = plt.subplots()
     ax2.plot(X_data, Y_data, 'ko', label = "Data points")
     A_m, u_m, sigma_m = gaussian_method_of_moments(X_data, Y_data)
     print("Method of moments:")
@@ -161,15 +160,13 @@ def main():
     X_m = np.linspace(0,50,501)
     Y_m = [ gauss(x_point, A_m, u_m, sigma_m) for x_point in X_m]
     ax2.plot(X_m, Y_m, 'green', label = "Method of moments")
-    leg = ax2.legend()
+    leg = ax2.legend(loc = 'upper left', prop={'size':7})
     A_m, u_m, sigma_m = round(A_m, 8), round(u_m, 8), round(sigma_m, 8)
     #a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
-    ax2.text(0.5, 1.06, "A: " + str(A_m) + ", mean: " + str(u_m) + ", sigma: " + str(sigma_m),
+    ax2.text(1.65, 1.06, "A: " + str(A_m) + ", mean: " + str(u_m) + ", sigma: " + str(sigma_m),
         horizontalalignment='center', verticalalignment='center',
         transform=ax.transAxes, color = 'green')
-    plt.show()
 
-    fig3, ax3 = plt.subplots()
     ax3.plot(X_data, Y_data, 'ko', label="Data points")
     A_opt, u_opt, sigma_opt = gauss_genetic_optimization(X_data, Y_data)
     print("Differential optimization:")
@@ -177,12 +174,12 @@ def main():
     X_opt = np.linspace(0,50,501)
     Y_opt = [ gauss(x_point, A_opt, u_opt, sigma_opt) for x_point in X_opt]
     ax3.plot(X_opt, Y_opt, 'red', label = "Diff. optimization")
-    leg = ax3.legend()
+    leg = ax3.legend(loc = 'upper left', prop={'size':7})
     A_opt, u_opt, sigma_opt = round(A_opt, 8), round(u_opt, 8), round(sigma_opt, 8)
     #a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
-    ax3.text(0.5, 1.06, "A: " + str(A_opt) + ", mean: " + str(u_opt) + ", sigma: " + str(sigma_opt),
+    ax3.text(2.85, 1.06, "A: " + str(A_opt) + ", mean: " + str(u_opt) + ", sigma: " + str(sigma_opt),
         horizontalalignment='center', verticalalignment='center',
-        transform=ax.transAxes, color = 'green')
+        transform=ax.transAxes, color = 'red')
     plt.show()
 
 

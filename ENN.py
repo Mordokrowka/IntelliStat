@@ -59,18 +59,8 @@ def main():
 
     fig, ax = plt.subplots()
     ax.plot(X_data, Y_data, 'ko', label = "Data points")
-    #print("Regression:")
-    #print("A: ",A,", mean: ", u,", sigma: ", sigma)
-    #X = np.linspace(0,50,501)
-    #Y = [ gauss(x_point, A, u, sigma) for x_point in X]
     ax.plot(X_data, Y_NN, 'blue', label = "Evolutional NN")
     leg = ax.legend(loc = 'upper left', prop={'size':7})
-
-    #A, u, sigma = round(A, 8), round(u, 8), round(sigma, 8)
-    #a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
-    #ax.text(0.45, 1.06, "A: " + str(A) + ", mean: " + str(u) + ", sigma: " + str(sigma),
-    #    horizontalalignment='center', verticalalignment='center',
-    #    transform=ax.transAxes, color = 'blue')
     plt.show()
 
 if __name__ == "__main__" :

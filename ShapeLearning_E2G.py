@@ -11,15 +11,15 @@ def Gauss( x, A, u, sigma ):
     return  A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
 
 def main():
-    EvolutionalNN = ENN(40, 20, 20, 12, 4)
+    EvolutionalNN = ENN(80, 40, 24, 12, 4)
 
-    X_data = [[X/2 for X in range(40)] for it in range(1600)]
-    Y_data = [ [random() + 4.1, 0.32 + random()/2, random() + 5.9, 0.32 + random()/2] for X in X_data]
+    X_data = [[X/2 for X in range(80)] for it in range(2200)]
+    Y_data = [ [random() + 4, 0.32 + random()/2, random() + 6, 0.32 + random()/2] for X in X_data]
     X_data = np.array(X_data, dtype = np.float32)
     Y_data = np.array(Y_data, dtype = np.float32)
 
     Dataset = ShapeCreator(X_data, "Gauss+Gauss+Exp", Y_data)
-    EvolutionalNN.train(Dataset, 700, 20 )
+    EvolutionalNN.train(Dataset, 800, 20 )
 
     X_NN = torch.tensor(X_data)
     Y_NN = EvolutionalNN.model(X_NN)

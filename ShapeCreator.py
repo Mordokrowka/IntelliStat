@@ -14,7 +14,12 @@ class ShapeCreator(Dataset):
             for i in range(len(self.X)):
                 for j in range(len(self.X[0])):
                     self.X[i][j] = Gauss( self.X[i][j], 1, self.Y[i][0], self.Y[i][1])
-                #print(self.X[i])
+        if function == "Gauss+Gauss":
+            for i in range(len(self.X)):
+                for j in range(len(self.X[0])):
+                    self.X[i][j] = Gauss(self.X[i][j], 1, self.Y[i][0], self.Y[i][1])\
+                                   + Gauss(self.X[i][j], 1, self.Y[i][2], self.Y[i][3])
+
                 #print(self.Y[i])
            #self.X = [[ Gauss( x_i, 1, params[0], params[1]) for x_i in X] for X in self.X]
         #print(self.X)

@@ -20,6 +20,7 @@ class ENN():
             torch.nn.Linear(n_hidden3,n_out)
         )
         self.optimizer = Adam(self.model.parameters(), lr = 0.001)
+        self.loss_vector = []
 
     def train_step(self, x, y, criterion):
         self.model.zero_grad()
@@ -42,7 +43,8 @@ class ENN():
                 x_train, y_train = batch['input'], batch['output']
                 #print(y_train)
                 self.train_step(x_train, y_train, criterion)
-
+            loss = criterion(self.model(x_train.float()), y_train.float())
+            self.loss_vector.append(loss.item())
 def main():
     EvolutionalNN = ENN(1, 2, 2, 2, 1)
     #for param_tensor in EvolutionalNN.model.state_dict():

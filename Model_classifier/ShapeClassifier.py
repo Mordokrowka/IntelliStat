@@ -1,5 +1,5 @@
 import numpy as np
-from random import random
+import random
 import torch
 from matplotlib import pyplot as plt
 import math
@@ -14,44 +14,56 @@ def Gauss( x, A, u, sigma ):
 
 def main():
     epoch = 50
-    rate = 200
-    classes = 10
+    train_samples = 400
+    test_samples = 200
+    classes = 4
     EvolutionalNN = ENN_classifier(20, 20, 10, 5, classes)
 
 
-    X_data = [[X/2 for X in range(20)] for it in range(classes*rate)]
+    X_data = [[X/2 for X in range(20)] for it in range(classes*(train_samples + test_samples))]
     Y_data = [ 0 for X in X_data]
+    X_data = np.array(X_data, dtype = np.float32)
+    Y_data = np.array(Y_data, dtype = np.longlong)
 
-    X_data, Y_data = generate_data(X_data, Y_data)
-    Dataset = ShapeCreator(X_data, "dummy", Y_data)
+    for c in range(classes):
+        for i in range(train_samples + test_samples):
+            X_data[i] = generate_data(X_data[i + c*(train_samples + test_samples)], c)
+            Y_data[i] = c
 
+    indices = np.arange(X_data.shape[0])
+    np.random.shuffle(indices)
+    #print(Y_data)
+    X_data = X_data[indices]
+    Y_data = Y_data[indices]
+
+    X_train, Y_train = X_data[:(train_samples * classes)], Y_data[:(train_samples * classes)]
+    X_test, Y_test = X_data[(train_samples * classes):], Y_data[(train_samples * classes):]
+
+    Dataset = ShapeCreator(X_train, "dummy", Y_train)
     EvolutionalNN.train(Dataset, epoch, 20 )
 
-    #After training, checking performance
-    X_test = [[X/2 for X in range(20)] for it in range(classes*rate)]
-    Y_test = [ 0 for X in X_data]
-    X_test, Y_test = generate_data(X_test, Y_test, rate)
     X_NN = torch.tensor(X_test)
     Y_NN = EvolutionalNN.model(X_NN)
     Y_NN = Y_NN.detach().numpy()
 
-    #for i in range(len(Y_data)):
-    #    print("Mean, real : ", Y_data[i][0], " , trained: ", Y_NN[i][0])
-    #    print("Std, real : ", Y_data[i][1], " , trained: ", Y_NN[i][1])
-
-    #vis_len = 100
-    #In_data = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    #F_X = np.linspace(0, 10, vis_len, endpoint=False)
-    #for i in range(len(X_data)):
-    #    for j in range(vis_len):
-    #        In_data[i][j] = Gauss(F_X[j], 1, Y_data[i][0], Y_data[i][1])
+    #idx = np.zeros([classes * (train_samples), classes])
+    idx_gauss = []
+    accuraccy = 0
+    for i in range(len(Y_NN)):
+        if Y_test[i] == 0:
+            idx_gauss.append(i)
+        #print(Y_test[i], Y_NN[i, Y_test[i]])
+        if round(Y_NN[i,Y_test[i]]) == 1:
+            accuraccy = accuraccy + 1
+    accuraccy = accuraccy / (classes * test_samples)
+    print("Reached accuraccy: ",accuraccy)
 
     fig, ax = plt.subplots(2,2)
     fig.set_size_inches(8, 8)
-    n, bins, patches = ax[0, 0].hist(Y_NN[1:500,0], 100, alpha=0.5, range = [0,1], color = 'red', label='Gauss')
-    n, bins, patches = ax[0, 0].hist(Y_NN[1500:2000, 0], 100, alpha=0.5, range = [0,1],color='blue', label='Gauss + Gauss')
-    n, bins, patches = ax[0, 0].hist(Y_NN[500:1000, 0], 100, alpha=0.5, range = [0,1],color='green', label='Gauss + Exp')
-    n, bins, patches = ax[0, 0].hist(Y_NN[1000:1500, 0], 100, alpha=0.5, range=[0, 1], color='yellow', label='Exp')
+    n, bins, patches = ax[0, 0].hist(Y_NN[idx_gauss,0], 100, alpha=0.5, range = [0,1], color = 'red', label='Gauss')
+    #n, bins, patches = ax[0, 0].hist(Y_NN[gaussgauss_i, 0], 100, alpha=0.5, range = [0,1],color='blue', label='Gauss + Gauss')
+    #n, bins, patches = ax[0, 0].hist(Y_NN[gaussexp_i, 0], 100, alpha=0.5, range = [0,1],color='green', label='Gauss + Exp')
+    #n, bins, patches = ax[0, 0].hist(Y_NN[exp_i, 0], 100, alpha=0.5, range=[0, 1], color='yellow', label='Exp')
     ax[0, 0].set_xlabel('Class A (Gauss)')
     ax[0, 0].set_ylabel('Number of counts')
     ax[0, 0].legend(loc='upper right')

@@ -3,8 +3,7 @@ from random import random
 import torch
 from torch.optim import Adam
 from torch.utils.data import DataLoader
-from FunctionCreator import FunctionCreator
-from tqdm import tqdm
+
 
 from matplotlib import pyplot as plt
 
@@ -18,7 +17,7 @@ class ENN_classifier():
             torch.nn.Linear(n_hidden2, n_hidden3),
             torch.nn.ReLU(),
             torch.nn.Linear(n_hidden3,n_out),
-            torch.nn.Sigmoid()
+            torch.nn.Softmax(dim=1)
         )
         self.optimizer = Adam(self.model.parameters(), lr = 0.001)
         self.loss_vector = []

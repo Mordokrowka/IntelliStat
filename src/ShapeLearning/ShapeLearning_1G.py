@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import numpy as np
 import torch
 
@@ -14,7 +16,7 @@ def test_with_different_sigma():
     epoch = 500
 
     X_data = [[X / 2 for X in range(20)] for _ in range(epoch)]
-    Y_data = [[4 * random() + 3, 0.5 + 10* random()] for _ in X_data]
+    Y_data = [[4 * random() + 3, 0.5 + 10 * random()] for _ in X_data]
 
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
@@ -25,12 +27,10 @@ def test_with_different_sigma():
 
     sigmas = [0.5, 3, 7, 9.5]
     for sigma in sigmas:
-
         Y_data = [[4 * random() + 3, sigma + random(), 1] for _ in X_data]
         Y_data = np.array(Y_data, dtype=np.float32)
-        test_data = np.zeros(X_data.shape, dtype=np.float32)
-        for i in range(X_data.shape[0]):
-            test_data[i] = Gauss(X_data[i], Y_data[i][2], Y_data[i][0], Y_data[i][1])
+
+        test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
 
         X_NN = torch.tensor(test_data)
         Y_NN = EvolutionalNN.model(X_NN)
@@ -56,9 +56,8 @@ def test_with_different_A_v1():
     for A in amplitudes:
         Y_data = [[4 * random() + 3, 0.5 + random(), A] for _ in X_data]
         Y_data = np.array(Y_data, dtype=np.float32)
-        test_data = np.zeros(X_data.shape, dtype=np.float32)
-        for i in range(X_data.shape[0]):
-            test_data[i] = Gauss(X_data[i], Y_data[i][2], Y_data[i][0], Y_data[i][1])
+
+        test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
 
         X_NN = torch.tensor(test_data)
         Y_NN = EvolutionalNN.model(X_NN)
@@ -69,35 +68,63 @@ def test_with_different_A_v1():
 
 def test_with_different_A_v2():
     EvolutionalNN = ENN(20, 20, 10, 5, 3)
-    epoch = 1000
+    epoch = 500
 
-    X_data = [[X / 2 for X in range(20)] for _ in range(2*epoch)]
+    X_data = [[X / 2 for X in range(20)] for _ in range(epoch)]
     Y_data = [[4 * random() + 3, 0.5 + random(), 1 + 10 * random()] for _ in X_data]
 
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = GaussDataset(X_data, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1), Y_data[:, 2].reshape(-1, 1))
+    Dataset = GaussDataset(X_data, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1),
+                           Y_data[:, 2].reshape(-1, 1))
     EvolutionalNN.train(Dataset, epoch, 20)
 
     amplitudes = [1, 3, 5, 10]
     for A in amplitudes:
         Y_data = [[4 * random() + 3, 0.5 + random(), A + random()] for _ in X_data]
         Y_data = np.array(Y_data, dtype=np.float32)
-        test_data = np.zeros(X_data.shape, dtype=np.float32)
-        for i in range(X_data.shape[0]):
-            test_data[i] = Gauss(X_data[i], Y_data[i][2], Y_data[i][0], Y_data[i][1])
+
+        test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
 
         X_NN = torch.tensor(test_data)
         Y_NN = EvolutionalNN.model(X_NN)
         Y_NN = Y_NN.detach().numpy()
-        visualize(2*epoch, Y_data, Y_NN, EvolutionalNN.loss_vector, amplitude=A)
+        visualize(epoch, Y_data, Y_NN, EvolutionalNN.loss_vector, amplitude=A)
+
+
+def test_with_noise():
+    EvolutionalNN = ENN(20, 20, 10, 5, 2)
+    epoch = 500
+
+    X_data = [[X / 2 for X in range(20)] for _ in range(epoch)]
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1] for _ in X_data]
+
+    X_data = np.array(X_data, dtype=np.float32)
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    Dataset = GaussDataset(X_data, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+
+    EvolutionalNN.train(Dataset, epoch, 20)
+
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1] for _ in X_data]
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    test_data = Gauss(X_data, 1, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+    percentage = np.random.choice(list(range(90, 110)), size=Dataset.X.shape)
+    test_data *= percentage / 100
+    X_NN = torch.tensor(test_data)
+    Y_NN = EvolutionalNN.model(X_NN)
+    Y_NN = Y_NN.detach().numpy()
+    Y_NN = np.append(Y_NN, np.ones([len(Y_NN), 1]), 1)
+    visualize(epoch, Y_data, Y_NN, EvolutionalNN.loss_vector)
 
 
 def main():
     # test_with_different_sigma()
     # test_with_different_A_v1()
-    test_with_different_A_v2()
+    # test_with_different_A_v2()
+    test_with_noise()
 
 
 if __name__ == "__main__":

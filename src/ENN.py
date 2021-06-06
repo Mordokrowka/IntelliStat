@@ -23,6 +23,7 @@ class ENN:
         )
         self.optimizer = Adam(self.model.parameters(), lr=0.001)
         self.loss_vector = []
+        self.training_done = 0
 
     def train_step(self, x, y, criterion):
         self.model.zero_grad()
@@ -37,14 +38,17 @@ class ENN:
     def train(self, data, epochs, batch):
         data_train = DataLoader(dataset=data, batch_size=batch, shuffle=True)
         criterion = torch.nn.MSELoss()
+
         for epoch in range(epochs):
-            if epoch % 100 == 0:
-                print("Training epoch: ", epoch)
+            if epoch + self.training_done % 100 == 0:
+                print("Training epoch: ", epoch + self.training_done)
             for dummy, batch in enumerate(data_train):
                 x_train, y_train = batch['input'], batch['output']
                 self.train_step(x_train, y_train, criterion)
             loss = criterion(self.model(x_train.float()), y_train.float())
             self.loss_vector.append(loss.item())
+
+        self.training_done += epochs
 
 
 def main():

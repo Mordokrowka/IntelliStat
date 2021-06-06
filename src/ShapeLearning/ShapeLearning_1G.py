@@ -16,7 +16,7 @@ def test_with_different_sigma():
     epoch = 500
 
     X_data = [[X / 2 for X in range(20)] for _ in range(epoch)]
-    Y_data = [[4 * random() + 3, 0.5 + 10 * random()] for _ in X_data]
+    Y_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]
 
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
@@ -111,7 +111,7 @@ def test_with_noise():
     Y_data = np.array(Y_data, dtype=np.float32)
 
     test_data = Gauss(X_data, 1, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
-    percentage = np.random.choice(list(range(90, 110)), size=Dataset.X.shape)
+    percentage = np.random.choice(list(range(95, 105)), size=Dataset.X.shape)
     test_data *= percentage / 100
     X_NN = torch.tensor(test_data)
     Y_NN = EvolutionalNN.model(X_NN)
@@ -120,11 +120,43 @@ def test_with_noise():
     visualize(epoch, Y_data, Y_NN, EvolutionalNN.loss_vector)
 
 
+def add_residues():
+    EvolutionalNN = ENN(40, 40, 20, 10, 3)
+    epoch = 500
+
+    X_data = [[X / 2 for X in range(40)] for _ in range(epoch)]
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1 + random()] for _ in X_data]
+
+    X_data = np.array(X_data, dtype=np.float32)
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    Dataset = GaussDataset(X_data, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1),
+                           Y_data[:, 2].reshape(-1, 1))
+
+    epochs = np.linspace(10, epoch, dtype=int)
+
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1 + random()] for _ in X_data]
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+    residuals = np.zeros((len(epochs), 3))
+
+    for index, e in enumerate(epochs):
+        EvolutionalNN.train(Dataset, 10, 20)
+        X_NN = torch.tensor(test_data)
+        Y_NN = EvolutionalNN.model(X_NN)
+        Y_NN = Y_NN.detach().numpy()
+        residuals[index] = np.mean(Y_data - Y_NN, axis=0)
+
+    visualize(epoch, Y_data, Y_NN, EvolutionalNN.loss_vector, residuals=residuals, epochs=epochs)
+
+
 def main():
     # test_with_different_sigma()
     # test_with_different_A_v1()
     # test_with_different_A_v2()
-    test_with_noise()
+    # test_with_noise()
+    add_residues()
 
 
 if __name__ == "__main__":

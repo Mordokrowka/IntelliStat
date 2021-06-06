@@ -3,7 +3,8 @@ from matplotlib import pyplot as plt
 from utils import Gauss
 
 
-def visualize(epoch, Y_data, Y_NN, loss_vector, sigma=1, amplitude=1):
+def visualize(epoch, Y_data, Y_NN, loss_vector, sigma=1, amplitude=1, residuals=None, epochs=None):
+
     vis_len = 100
 
     In_data = np.zeros((epoch, vis_len))
@@ -12,20 +13,22 @@ def visualize(epoch, Y_data, Y_NN, loss_vector, sigma=1, amplitude=1):
     for i in range(Y_data.shape[0]):
         In_data[i] = Gauss(F_X, Y_data[i][2], Y_data[i][0], Y_data[i][1])
 
-    fig, ax = plt.subplots(2, 3)
+    fig, ax = plt.subplots(3, 3)
+
     fig.suptitle(f"Sigma={sigma}, Amplitude={amplitude}", fontsize=16)
-    fig.set_size_inches(12, 12)
+    fig.set_size_inches(16, 16)
 
     plot_gauss(ax[0, 0], F_X, In_data, Y_NN)
+    plot_loss_function(ax[0, 1], loss_vector)
+    plot_residuals(ax[0, 2], epochs, residuals)
 
-    plot_mean_histogram(ax[0, 1], Y_data[:, 0] - Y_NN[:, 0])
+    colors = ['red', 'blue', 'green']
+    labels = ['Mean', 'St. dev.', 'Amplitude']
+    for i in range(Y_data.shape[1]):
+        plot_variable_distribution(ax[2, i], Y_data[:, i], colors[i], labels[i])
+        plot_histogram(ax[1, i], Y_data[:, i] - Y_NN[:, i], colors[i], labels[i])
 
-    plot_st_dev_histogram(ax[1, 1], Y_data[:, 1] - Y_NN[:, 1])
-
-    plot_amplitude_histogram(ax[1, 2], Y_data[:, 2] - Y_NN[:, 2])
-
-    plot_loss_function(ax[1, 0], loss_vector)
-
+    fig.tight_layout()
     plt.show()
 
 
@@ -51,16 +54,8 @@ def plot_gauss(ax, F_X, gauss_data, Y_NN):
     ax.legend(loc='upper left', prop={'size': 7})
 
 
-def plot_mean_histogram(ax, x):
-    n, bins, patches = ax.hist(x, 100, alpha=0.5, color='red', label='Mean')
-    ax.set_xlabel('Real - NN prediction')
-    ax.set_ylabel('Number of counts')
-
-    ax.legend(loc='upper right')
-
-
-def plot_st_dev_histogram(ax, x):
-    n, bins, patches = ax.hist(x, 100, alpha=0.5, color='blue', label='St. dev.')
+def plot_histogram(ax, data, color, label):
+    n, bins, patches = ax.hist(data, 100, alpha=0.5, color=color, label=label)
 
     ax.set_xlabel('Real - NN prediction')
     ax.set_ylabel('Number of counts')
@@ -68,12 +63,20 @@ def plot_st_dev_histogram(ax, x):
     ax.legend(loc='upper right')
 
 
-def plot_amplitude_histogram(ax, x):
-    n, bins, patches = ax.hist(x, 100, alpha=0.5, color='green', label='amplitude')
+def plot_variable_distribution(ax, variable, color, label):
+    ax.plot(variable, color=color, label=label)
+    ax.set_xlabel('Argument X')
+    ax.set_ylabel('Value Y')
 
-    ax.set_xlabel('Real - NN prediction')
-    ax.set_ylabel('Number of counts')
+    ax.legend(loc='upper left', prop={'size': 7})
 
+
+def plot_residuals(ax, epochs, residuals):
+    ax.plot(epochs, residuals[:, 0], 'g-', label="Amplitude")
+    ax.plot(epochs, residuals[:, 1], 'r-', label="Mean")
+    ax.plot(epochs, residuals[:, 2], 'b-', label="St. dev")
+    ax.set_xlabel('Epoch number')
+    ax.set_ylabel('Residual mean')
     ax.legend(loc='upper right')
 
 

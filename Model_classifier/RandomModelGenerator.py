@@ -52,23 +52,23 @@ def GE(x, A1, u1, sigma1, B1, b1  ):
 
 def data_generator(X, option_model):
     if option_model == 'Gauss':
-        return G(X, 1, 2 + 6*random(), 0.2 + 0.5*random())
+        return G(X, 0.7 + 0.6*random(), 2 + 6*random(), 0.2 + 0.5*random())
     if option_model == 'Gauss+Gauss' :
-        return GG(X, 1, 2 + 3*random(), 0.2 + 0.5*random(),
-                  1, 5 + 3*random(), 0.2 + 0.5*random())
+        return GG(X, 0.7 + 0.6*random(), 2 + 3*random(), 0.2 + 0.5*random(),
+                  0.7 + 0.6*random(), 5 + 3*random(), 0.2 + 0.5*random())
     if option_model == 'Gauss+Gauss+Gauss' :
-        return GGG(X, 1, 2 + 2*random(), 0.2 + 0.5*random(),
-                   1, 4 + 2*random(), 0.2 + 0.5*random(),
-                   1, 6 + 2*random(), 0.2 + 0.5*random())
+        return GGG(X, 0.7 + 0.6*random(), 2 + 2*random(), 0.2 + 0.5*random(),
+                   0.7 + 0.6*random(), 4 + 2*random(), 0.2 + 0.5*random(),
+                   0.7 + 0.6*random(), 6 + 2*random(), 0.2 + 0.5*random())
     if option_model == 'Gauss+Gauss+Exp' :
-        return GGE(X, 1, 2 + 3*random(), 0.2 + 0.5*random(),
-                   1, 5 + 3*random(), 0.2 + 0.5*random(),
-                   1, 0.5 + random() )
+        return GGE(X, 0.7 + 0.6*random(), 2 + 3*random(), 0.2 + 0.5*random(),
+                   0.7 + 0.6*random(), 5 + 3*random(), 0.2 + 0.5*random(),
+                   0.7 + 0.6*random(), 0.5 + random() )
     if option_model == 'Gauss+Exp':
-        return GE(X, 1, 2 + 6 * random(), 0.2 + 0.5*random(),
-                  1, 0.5 + random())
+        return GE(X, 0.7 + 0.6*random(), 2 + 6 * random(), 0.2 + 0.5*random(),
+                  0.7 + 0.6*random(), 0.5 + random())
     if option_model == 'Exp' :
-        return E(X, 1, 0.5 + random() )
+        return E(X, 0.7 + 0.6*random(), 0.5 + random() )
 
 def generate_data(X_data, option):
 
@@ -79,3 +79,27 @@ def generate_data(X_data, option):
     #print(X_data)
 
     return X_data
+
+def build_class_vector(option):
+    option_model = class_option(option)
+    class_vector = np.zeros(2)
+    if option_model == 'Gauss':
+        class_vector[0] = 1
+        return class_vector
+    if option_model == 'Gauss+Gauss' :
+        class_vector[0] = 2
+        return class_vector
+    if option_model == 'Gauss+Gauss+Gauss' :
+        class_vector[0] = 3
+        return class_vector
+    if option_model == 'Gauss+Gauss+Exp' :
+        class_vector[0] = 2
+        class_vector[1] = 1
+        return class_vector
+    if option_model == 'Gauss+Exp':
+        class_vector[0] = 1
+        class_vector[1] = 1
+        return class_vector
+    if option_model == 'Exp' :
+        class_vector[1] = 1
+        return class_vector

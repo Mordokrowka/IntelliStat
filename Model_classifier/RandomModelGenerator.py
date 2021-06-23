@@ -58,7 +58,7 @@ def multiG(n, x):
     for it in range(n):
         u.append( 1 + 8*random())
         A.append(  0.7 + 0.6*random())
-        sigma.append(  0.1 + 0.4*random())
+        sigma.append(  0.2 + 0.5*random())
     for i in range(len(x)):
         sum = 0
         for it in range(n):
@@ -128,9 +128,13 @@ def build_class_vector(option):
         return class_vector
     if option_model == '4G' :
         class_vector[0] = 4
+        return class_vector
     if option_model == '5G' :
         class_vector[0] = 5
+        return class_vector
     if option_model == '6G' :
         class_vector[0] = 6
+        return class_vector
     if option_model == '7G' :
         class_vector[0] = 7
+        return class_vector

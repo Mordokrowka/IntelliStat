@@ -11,6 +11,10 @@ def class_option(option):
         3 : 'Gauss+Gauss+Exp',
         4 : 'Gauss+Exp',
         5 : 'Exp',
+        6 : '4G',
+        7 : '5G',
+        8 : '6G',
+        9 : '7G',
     }[option]
 
 def Gauss(x, A, u, sigma):
@@ -49,27 +53,46 @@ def GE(x, A1, u1, sigma1, B1, b1  ):
     for i in range(len(x)):
         x[i] = Gauss(x[i], A1, u1, sigma1) + Exp(x[i], B1, b1)
     return x
+def multiG(n, x):
+    u, A, sigma = [],[], []
+    for it in range(n):
+        u.append( 1 + 8*random())
+        A.append(  0.7 + 0.6*random())
+        sigma.append(  0.1 + 0.4*random())
+    for i in range(len(x)):
+        sum = 0
+        for it in range(n):
+            sum = sum + Gauss(x[i], A[it], u[it], sigma[it])
+        x[i] = sum
+    return x
 
 def data_generator(X, option_model):
     if option_model == 'Gauss':
-        return G(X, 0.7 + 0.6*random(), 2 + 6*random(), 0.2 + 0.5*random())
+        return G(X, 0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random())
     if option_model == 'Gauss+Gauss' :
-        return GG(X, 0.7 + 0.6*random(), 2 + 3*random(), 0.2 + 0.5*random(),
-                  0.7 + 0.6*random(), 5 + 3*random(), 0.2 + 0.5*random())
+        return GG(X, 0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
+                  0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random())
     if option_model == 'Gauss+Gauss+Gauss' :
-        return GGG(X, 0.7 + 0.6*random(), 2 + 2*random(), 0.2 + 0.5*random(),
-                   0.7 + 0.6*random(), 4 + 2*random(), 0.2 + 0.5*random(),
-                   0.7 + 0.6*random(), 6 + 2*random(), 0.2 + 0.5*random())
+        return GGG(X, 0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
+                   0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
+                   0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random())
     if option_model == 'Gauss+Gauss+Exp' :
-        return GGE(X, 0.7 + 0.6*random(), 2 + 3*random(), 0.2 + 0.5*random(),
-                   0.7 + 0.6*random(), 5 + 3*random(), 0.2 + 0.5*random(),
+        return GGE(X, 0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
+                   0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
                    0.7 + 0.6*random(), 0.5 + random() )
     if option_model == 'Gauss+Exp':
-        return GE(X, 0.7 + 0.6*random(), 2 + 6 * random(), 0.2 + 0.5*random(),
+        return GE(X, 0.7 + 0.6*random(), 1 + 8*random(), 0.1 + 0.4*random(),
                   0.7 + 0.6*random(), 0.5 + random())
     if option_model == 'Exp' :
         return E(X, 0.7 + 0.6*random(), 0.5 + random() )
-
+    if option_model == '4G':
+        return multiG(4, X)
+    if option_model == '5G':
+        return multiG(5, X)
+    if option_model == '6G':
+        return multiG(6, X)
+    if option_model == '7G':
+        return multiG(7, X)
 def generate_data(X_data, option):
 
     # Gauss, class 0
@@ -103,3 +126,11 @@ def build_class_vector(option):
     if option_model == 'Exp' :
         class_vector[1] = 1
         return class_vector
+    if option_model == '4G' :
+        class_vector[0] = 4
+    if option_model == '5G' :
+        class_vector[0] = 5
+    if option_model == '6G' :
+        class_vector[0] = 6
+    if option_model == '7G' :
+        class_vector[0] = 7

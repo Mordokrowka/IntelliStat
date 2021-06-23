@@ -15,8 +15,8 @@ def Gauss(x, A, u, sigma):
 
 def main():
     epoch = 80
-    train_samples = 500
-    test_samples = 100
+    train_samples = 2000
+    test_samples = 200
     classes = 10
     components = 2
     EvolutionalNN = ENN(40, 40, 20, 10, components)
@@ -51,12 +51,12 @@ def main():
     # idx = np.zeros([classes * (train_samples), classes])
     idx_gge = []
     accuraccy = 0
+    #print(Y_NN)
+    #print(Y_test)
     for i in range(len(Y_NN)):
         if Y_test[i][0] == build_class_vector(3)[0] and Y_test[i][1] == build_class_vector(3)[1]:
             idx_gge.append(i)
         # print(Y_test[i], Y_NN[i, Y_test[i]])
-        print(Y_NN[i,0])
-        print(Y_test[i,0])
         if round(Y_NN[i, 0]) == Y_test[i, 0] and round(Y_NN[i][1]) == Y_test[i, 1]:
             accuraccy = accuraccy + 1
     accuraccy = accuraccy / (classes * test_samples)

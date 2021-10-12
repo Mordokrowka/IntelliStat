@@ -1,14 +1,13 @@
-from pprint import pprint
-
 import numpy as np
 import torch
 
 from random import random
 
+from sklearn.preprocessing import StandardScaler
 from src.dataset import GaussDataset
 from src.ENN import ENN
 from src.utils import Gauss
-from src.visualization import visualize
+from src.visualization import visualize, track_mean_evolution
 
 
 def test_with_different_sigma():
@@ -121,10 +120,10 @@ def test_with_noise():
 
 
 def add_residues():
-    EvolutionalNN = ENN(40, 40, 20, 10, 3)
+    EvolutionalNN = ENN(120, 80, 40, 20, 3)
     epoch = 500
 
-    X_data = [[X / 2 for X in range(40)] for _ in range(epoch)]
+    X_data = [[X / 2 for X in range(120)] for _ in range(4 * epoch)]
     Y_data = [[4 * random() + 3, 0.5 + random(), 1 + random()] for _ in X_data]
 
     X_data = np.array(X_data, dtype=np.float32)
@@ -139,6 +138,10 @@ def add_residues():
     Y_data = np.array(Y_data, dtype=np.float32)
 
     test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+
+    scaler = StandardScaler()
+    scaler.fit(test_data)
+    test_data = scaler.transform(test_data)
     residuals = np.zeros((len(epochs), 3))
 
     for index, e in enumerate(epochs):
@@ -146,9 +149,43 @@ def add_residues():
         X_NN = torch.tensor(test_data)
         Y_NN = EvolutionalNN.model(X_NN)
         Y_NN = Y_NN.detach().numpy()
-        residuals[index] = np.mean(Y_data - Y_NN, axis=0)
 
-    visualize(epoch, Y_data, Y_NN, EvolutionalNN.loss_vector, residuals=residuals, epochs=epochs)
+        residuals[index] = np.mean(np.abs(Y_NN - Y_data) / Y_data * 100, axis=0)
+
+    visualize(4 * epoch, Y_data, Y_NN, EvolutionalNN.loss_vector, residuals=residuals, epochs=epochs)
+
+
+def mean_evolution():
+    EvolutionalNN = ENN(120, 80, 40, 20, 3)
+    epoch = 500
+
+    X_data = [[X / 2 for X in range(120)] for _ in range(4 * epoch)]
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1 + random()] for _ in X_data]
+
+    X_data = np.array(X_data, dtype=np.float32)
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    Dataset = GaussDataset(X_data, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1),
+                           Y_data[:, 2].reshape(-1, 1))
+
+    Y_data = [[4 * random() + 3, 0.5 + random(), 1 + random()] for _ in X_data]
+    Y_data = np.array(Y_data, dtype=np.float32)
+
+    test_data = Gauss(X_data, Y_data[:, 2].reshape(-1, 1), Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+
+    scaler = StandardScaler()
+    scaler.fit(test_data)
+    test_data = scaler.transform(test_data)
+    means_NN = []
+    for e in [100] * 5:
+        EvolutionalNN.train(Dataset, e, 20)
+        X_NN = torch.tensor(test_data)
+        Y_NN = EvolutionalNN.model(X_NN)
+        Y_NN = Y_NN.detach().numpy()
+        means_NN.append(Y_NN[:, 0])
+
+    track_mean_evolution(Y_data[:, 0], means_NN, step=100)
+    # visualize(4*epoch, Y_data, Y_NN, EvolutionalNN.loss_vector)
 
 
 def main():
@@ -156,7 +193,8 @@ def main():
     # test_with_different_A_v1()
     # test_with_different_A_v2()
     # test_with_noise()
-    add_residues()
+    # add_residues()
+    mean_evolution()
 
 
 if __name__ == "__main__":

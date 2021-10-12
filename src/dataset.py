@@ -3,13 +3,12 @@ import numpy as np
 from torch.utils.data import Dataset
 
 from utils import Gauss
+from sklearn.preprocessing import StandardScaler
 
 
-# TODO default values for mu, sigma
-# TODO check about reshape
-# TODO FIX another shapelearnings
 class FunctionDataset(Dataset):
     def __init__(self, X_data: np.ndarray):
+        self.scaler = StandardScaler()
         self.X = X_data.copy()
         self.Y = np.empty((X_data.shape[0], 0), dtype=np.float32)
 
@@ -38,6 +37,8 @@ class GaussDataset(FunctionDataset):
         sigma = sigma if sigma is not None else 0
 
         self.X = Gauss(self.X, amplitude, mu, sigma)
+        self.scaler.fit(self.X)
+        self.X = self.scaler.transform(self.X)
         # if function == "Gauss+Gauss+Exp":
         #     for i in range(len(self.X)):
         #         for j in range(len(self.X[0])):

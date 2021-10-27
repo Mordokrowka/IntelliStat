@@ -3,7 +3,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 
 
-class ENN_classifier():
+class ENN_Classifier:
     def __init__(self, n_in, n_hidden1, n_hidden2, n_hidden3, n_out):
         self.model = torch.nn.Sequential(
             torch.nn.Linear(n_in, n_hidden1),
@@ -36,7 +36,6 @@ class ENN_classifier():
                 print("Training epoch: ", epoch)
             for dummy, batch in enumerate(data_train):
                 x_train, y_train = batch['input'], batch['output']
-                # print(y_train)
                 self.train_step(x_train, y_train, criterion)
             loss = criterion(self.model(x_train.float()), y_train)
             self.loss_vector.append(loss.item())

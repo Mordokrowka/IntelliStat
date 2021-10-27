@@ -1,9 +1,9 @@
 import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.dataset_creators.ShapeCreator import ShapeCreator
+from IntelliStat.datasets.shape_dataset import ShapeDataset
 from IntelliStat.neural_networks.ENN import ENN
-from RandomModelGenerator import *
+from IntelliStat.components.components import *
 
 
 def Gauss(x, A, u, sigma):
@@ -38,7 +38,7 @@ def main():
     X_train, Y_train = X_data[:(train_samples * classes)], Y_data[:(train_samples * classes)]
     X_test, Y_test = X_data[(train_samples * classes):], Y_data[(train_samples * classes):]
 
-    Dataset = ShapeCreator(X_train, "dummy", Y_train)
+    Dataset = ShapeDataset(X_train, "dummy", Y_train)
     EvolutionalNN.train(Dataset, epoch, 25)
 
     X_NN = torch.tensor(X_test)

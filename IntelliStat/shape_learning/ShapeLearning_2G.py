@@ -4,7 +4,7 @@ import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks.ENN import ENN
-from IntelliStat.dataset_creators.ShapeCreator import ShapeCreator
+from IntelliStat.datasets.shape_dataset import ShapeDataset
 
 
 def Gauss(x, A, u, sigma):
@@ -19,7 +19,7 @@ def main():
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = ShapeCreator(X_data, "Gauss+Gauss", Y_data)
+    Dataset = ShapeDataset(X_data, "Gauss+Gauss", Y_data)
     EvolutionalNN.train(Dataset, 500, 20)
 
     X_NN = torch.tensor(X_data)

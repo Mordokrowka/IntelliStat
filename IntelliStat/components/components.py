@@ -1,7 +1,7 @@
-from torch.utils.data import Dataset
-import numpy as np
 import math
 from random import random
+
+import numpy as np
 
 
 def class_option(option):

@@ -4,7 +4,7 @@ import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks.ENN import ENN
-from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.utils.datasets.shape_dataset import ShapeDataset
 
 
 def Gauss(x, A, u, sigma):

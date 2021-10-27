@@ -1,8 +1,8 @@
-from typing import Optional, Sequence, Union
+from typing import Sequence, Union
 
 import numpy as np
 
-from IntelliStat.datasets.base_dataset import BaseDataset
+from .base_dataset import BaseDataset
 
 
 class FunctionDataset(BaseDataset):

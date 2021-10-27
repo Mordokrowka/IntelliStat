@@ -1,11 +1,8 @@
-import numpy as np
-import random
 import torch
 from matplotlib import pyplot as plt
-import math
 
-from ShapeCreator import ShapeCreator
-from ENN import ENN
+from IntelliStat.dataset_creators.ShapeCreator import ShapeCreator
+from IntelliStat.neural_networks.ENN import ENN
 from RandomModelGenerator import *
 
 

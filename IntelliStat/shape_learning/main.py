@@ -1,0 +1,49 @@
+from random import random
+
+import numpy as np
+import torch
+from matplotlib import pyplot as plt
+
+from IntelliStat.dataset_creators.FunctionCreator import FunctionCreator
+from IntelliStat.neural_networks.ENN import ENN
+
+
+def main():
+    EvolutionalNN = ENN(1, 2, 2, 2, 1)
+    #for param_tensor in EvolutionalNN.model.state_dict():
+        #print(param_tensor, "\t", EvolutionalNN.model.state_dict()[param_tensor][0])
+
+    X_data = [n_x + 3 * (random() - 0.5) for n_x in range(50)]
+    #Y_tensor = torch.tensor(Y_tensor)
+    Y_data = [[(2 * x_point  + 2 + 10 * (random() - 0.5) )] for x_point in X_data]
+    X_data = [[x] for x in X_data]
+    X_data = np.array(X_data, dtype = np.float32)
+    Y_data = np.array(Y_data, dtype = np.float32)
+    X_tensor = X_data
+    X_tensor = torch.tensor(X_tensor)
+
+    Dataset = FunctionCreator(X_data, "linear", [2, 2])
+    EvolutionalNN.train(Dataset, 200, 5 )
+
+
+    Y_NN = EvolutionalNN.model(X_tensor)
+    Y_NN = Y_NN.detach().numpy()
+
+    fig, ax = plt.subplots()
+    ax.plot(X_data, Y_data, 'ko', label = "Data points")
+    #print("Regression:")
+    #print("A: ",A,", mean: ", u,", sigma: ", sigma)
+    #X = np.linspace(0,50,501)
+    #Y = [ gauss(x_point, A, u, sigma) for x_point in X]
+    ax.plot(X_data, Y_NN, 'blue', label = "Evolutional NN")
+    leg = ax.legend(loc = 'upper left', prop={'size':7})
+
+    #A, u, sigma = round(A, 8), round(u, 8), round(sigma, 8)
+    #a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
+    #ax.text(0.45, 1.06, "A: " + str(A) + ", mean: " + str(u) + ", sigma: " + str(sigma),
+    #    horizontalalignment='center', verticalalignment='center',
+    #    transform=ax.transAxes, color = 'blue')
+    plt.show()
+
+if __name__ == "__main__" :
+    main()

@@ -1,4 +1,5 @@
 from enum import Enum, EnumMeta, auto, unique
+from typing import Callable
 
 import numpy as np
 
@@ -28,11 +29,13 @@ class Component(Enum, metaclass=ComponentEnumMeta):
     G_6 = '6G', (6, 0), multiG, 6
     G_7 = '7G', (7, 0), multiG, 7
 
-    def __init__(self, component_name, class_vector, data_generator, n_gauss: int = None):
-        self.n_gauss = n_gauss
-        self.component_name = component_name
-        self.class_vector = np.array(class_vector)
-        self.data_generator = data_generator
+    def __init__(self, component_name: str, class_vector: tuple, data_generator: Callable,
+                 n_gauss: int = None):
+
+        self.component_name: str = component_name
+        self.class_vector: np.ndarray = np.array(class_vector)
+        self.data_generator: Callable = data_generator
+        self.n_gauss: int = n_gauss
 
     def __new__(cls, *values):
         obj = object.__new__(cls)
@@ -51,12 +54,13 @@ class Component(Enum, metaclass=ComponentEnumMeta):
         )
 
     # TODO to change -> one builder
-    def generate_data(self, X: np.ndarray, **kwargs) -> np.ndarray:
+    def generate_data(self, x: np.ndarray, **kwargs) -> np.ndarray:
         if self.data_generator == multiG:
-            return self.data_generator(X, n=self.n_gauss, **kwargs)
-        return self.data_generator(X, **kwargs)
+            return self.data_generator(x, n=self.n_gauss, **kwargs)
+        return self.data_generator(x, **kwargs)
 
 
 if __name__ == '__main__':
-    print(Component('Gauss').class_vector)
-    print(Component[0].class_vector)
+    print(repr(Component('Gauss')))
+    print(repr(Component[0]))
+    print(repr(Component.Gauss))

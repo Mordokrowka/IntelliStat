@@ -114,9 +114,9 @@ def gaussian_method_of_moments(X_data: np.ndarray, Y_data: np.ndarray) -> tuple:
 
 def main():
     X_data: List[float] = [biased_x_point + 1 * (random() - 0.5) for biased_x_point in range(50)]
-    Y_data: List[float] = [abs(Gauss(x_point, 100, 25, 5) + 0 * (random() - 0.5)) for x_point in X_data]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
-    Y_data: np.ndarray = np.array(Y_data, dtype=np.float32)
+
+    Y_data: np.ndarray = np.abs(Gauss(X_data, 100, 25, 5) + 0 * (random() - 0.5))
 
     fig, (ax, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4))
 

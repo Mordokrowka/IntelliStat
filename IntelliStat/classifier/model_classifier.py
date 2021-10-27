@@ -1,66 +1,57 @@
+from typing import List
+
+import numpy as np
 import torch
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 
-from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.utils.datasets import BaseDataset
 from IntelliStat.neural_networks.ENN import ENN
-from IntelliStat.components.components import *
+from IntelliStat.utils.components import Component
 
 
-def Gauss(x, A, u, sigma):
-    return A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
-
-
-def main():
-    epoch = 80
-    train_samples = 2000
-    test_samples = 200
-    classes = 10
-    components = 2
+def model_classifier():
+    epoch: int = 80
+    train_samples: int = 2000
+    test_samples: int = 200
+    classes: int = 10
+    components: int = 2
     EvolutionalNN = ENN(40, 40, 20, 10, components)
 
-    X_data = [[X / 4 for X in range(40)] for it in range(classes * (train_samples + test_samples))]
-    Y_data = [np.zeros(components) for X in X_data]
-    X_data = np.array(X_data, dtype=np.float32)
-    Y_data = np.array(Y_data, dtype=np.float32)
+    X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * (train_samples + test_samples))]
+    X_data: np.ndarray = np.array(X_data, dtype=np.float32)
+
+    Y_data: np.ndarray = np.zeros((X_data.shape[0], components), dtype=np.float32)
 
     for c in range(classes):
         for i in range(train_samples + test_samples):
-            X_data[i + c * (train_samples + test_samples)] = generate_data(
-                X_data[i + c * (train_samples + test_samples)], c)
-            Y_data[i + c * (train_samples + test_samples)] = build_class_vector(c)
+            component = Component[c]
+            X_data[i + c * (train_samples + test_samples)] = component.generate_data(
+                x=X_data[i + c * (train_samples + test_samples)]
+            )
+            Y_data[i + c * (train_samples + test_samples)] = component.class_vector
 
-    indices = np.arange(X_data.shape[0])
-    np.random.shuffle(indices)
-    # print(Y_data)
-    X_data = X_data[indices]
-    Y_data = Y_data[indices]
+    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
 
-    X_train, Y_train = X_data[:(train_samples * classes)], Y_data[:(train_samples * classes)]
-    X_test, Y_test = X_data[(train_samples * classes):], Y_data[(train_samples * classes):]
-
-    Dataset = ShapeDataset(X_train, "dummy", Y_train)
+    Dataset = BaseDataset(X_train, Y_train)
     EvolutionalNN.train(Dataset, epoch, 25)
 
     X_NN = torch.tensor(X_test)
     Y_NN = EvolutionalNN.model(X_NN)
     Y_NN = Y_NN.detach().numpy()
-    # print(X_NN, Y_NN)
-    # idx = np.zeros([classes * (train_samples), classes])
-    idx_gge = []
-    accuraccy = 0
-    #print(Y_NN)
-    #print(Y_test)
-    for i in range(len(Y_NN)):
-        if Y_test[i][0] == build_class_vector(3)[0] and Y_test[i][1] == build_class_vector(3)[1]:
+
+    idx_gge: List[int] = []
+    accuraccy: int = 0
+
+    for i in range(Y_NN.shape[0]):
+        if np.array_equal(Y_test[i], Component[3].class_vector):
             idx_gge.append(i)
-        # print(Y_test[i], Y_NN[i, Y_test[i]])
         if round(Y_NN[i, 0]) == Y_test[i, 0] and round(Y_NN[i][1]) == Y_test[i, 1]:
             accuraccy = accuraccy + 1
-    accuraccy = accuraccy / (classes * test_samples)
+
+    accuraccy = accuraccy / Y_NN.shape[0]
     print("Reached accuraccy: ", accuraccy)
 
-    # for it in range(len(Y_NN)):
-    #    print(Y_NN[it], Y_test[it])
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)
     n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 0], 100, alpha=0.5, range=[0, 3], color='red', label='Gauss')
@@ -83,7 +74,7 @@ def main():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = generate_data(X_plot, 9)
+    X_plot = Component('7G').generate_data(X_plot)
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="7G(x)")
     ax[0, 1].set_xlabel('X argument')
     # ax[0, 1].set_ylabel('GGE(x)')
@@ -132,4 +123,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    model_classifier()

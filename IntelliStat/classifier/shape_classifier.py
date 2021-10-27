@@ -1,61 +1,54 @@
+from typing import List
+
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
+from sklearn.model_selection import train_test_split
 
-from IntelliStat.datasets.shape_dataset import ShapeDataset
-from IntelliStat.neural_networks.ENN_classifier import ENN_classifier
-from IntelliStat.components.components import generate_data
-
-
-def Gauss(x, A, u, sigma):
-    return A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
+from IntelliStat.utils.datasets import BaseDataset
+from IntelliStat.neural_networks.ENN_classifier import ENN_Classifier
+from IntelliStat.utils.components import Component
 
 
-def main():
-    epoch = 60
-    train_samples = 1200
-    test_samples = 200
-    classes = 6
-    EvolutionalNN = ENN_classifier(40, 40, 20, 10, classes)
+def shape_classifier():
 
-    X_data = [[X / 4 for X in range(40)] for it in range(classes * (train_samples + test_samples))]
-    Y_data = [0 for X in X_data]
-    X_data = np.array(X_data, dtype=np.float32)
-    Y_data = np.array(Y_data, dtype=np.longlong)
+    epoch: int = 60
+    train_samples: int = 1200
+    test_samples: int = 200
+    classes: int = 6
+    EvolutionalNN = ENN_Classifier(40, 40, 20, 10, classes)
+
+    X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * (train_samples + test_samples))]
+    X_data: np.ndarray = np.array(X_data, dtype=np.float32)
+
+    Y_data: np.ndarray = np.zeros(X_data.shape[0], dtype=np.longlong)
 
     for c in range(classes):
         for i in range(train_samples + test_samples):
-            X_data[i + c * (train_samples + test_samples)] = generate_data(
-                X_data[i + c * (train_samples + test_samples)], c)
+            X_data[i + c * (train_samples + test_samples)] = Component[c].generate_data(
+                X_data[i + c * (train_samples + test_samples)]
+            )
             Y_data[i + c * (train_samples + test_samples)] = c
 
-    indices = np.arange(X_data.shape[0])
-    np.random.shuffle(indices)
-    # print(Y_data)
-    X_data = X_data[indices]
-    Y_data = Y_data[indices]
+    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
 
-    X_train, Y_train = X_data[:(train_samples * classes)], Y_data[:(train_samples * classes)]
-    X_test, Y_test = X_data[(train_samples * classes):], Y_data[(train_samples * classes):]
-
-    Dataset = ShapeDataset(X_train, "dummy", Y_train)
-    EvolutionalNN.train(Dataset, epoch, 20)
+    dataset = BaseDataset(X_train, Y_train)
+    EvolutionalNN.train(dataset, epoch, 20)
 
     X_NN = torch.tensor(X_test)
     Y_NN = EvolutionalNN.model(X_NN)
     Y_NN = Y_NN.detach().numpy()
-    # print(X_NN, Y_NN)
-    # idx = np.zeros([classes * (train_samples), classes])
-    idx_gge = []
-    accuraccy = 0
+
+    idx_gge: List[int] = []
+    accuracy: int = 0
     for i in range(len(Y_NN)):
         if Y_test[i] == 3:
             idx_gge.append(i)
-        # print(Y_test[i], Y_NN[i, Y_test[i]])
+
         if Y_NN[i, Y_test[i]] == max(Y_NN[i]):
-            accuraccy = accuraccy + 1
-    accuraccy = accuraccy / (classes * test_samples)
-    print("Reached accuraccy: ", accuraccy)
+            accuracy = accuracy + 1
+    accuracy = accuracy / Y_NN.shape[0]
+    print("Reached accuracy: ", accuracy)
 
     # for it in range(len(Y_NN)):
     #    print(Y_NN[it], Y_test[it])
@@ -79,7 +72,7 @@ def main():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = generate_data(X_plot, 3)
+    X_plot = Component('GGE').generate_data(X_plot)
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="GGE(x)")
     ax[0, 1].set_xlabel('X argument')
     ax[0, 1].set_ylabel('GGE(x)')
@@ -128,4 +121,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    shape_classifier()

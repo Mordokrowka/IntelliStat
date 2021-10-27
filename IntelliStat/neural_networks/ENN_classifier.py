@@ -1,10 +1,12 @@
+from typing import Optional
+
 import torch
 from torch.optim import Adam
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 
 class ENN_Classifier:
-    def __init__(self, n_in, n_hidden1, n_hidden2, n_hidden3, n_out):
+    def __init__(self, n_in: int, n_hidden1: int, n_hidden2: int, n_hidden3: int, n_out: int):
         self.model = torch.nn.Sequential(
             torch.nn.Linear(n_in, n_hidden1),
             torch.nn.ReLU(),
@@ -28,7 +30,7 @@ class ENN_Classifier:
         loss.backward()
         self.optimizer.step()
 
-    def train(self, data, epochs, batch):
+    def train(self, data: Dataset, epochs: int, batch: Optional[int]):
         data_train = DataLoader(dataset=data, batch_size=batch, shuffle=True)
         criterion = torch.nn.CrossEntropyLoss()
         for epoch in range(epochs):

@@ -1,22 +1,19 @@
-import numpy as np
 from random import random
+
+import numpy as np
 import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks.ENN import ENN
 from IntelliStat.utils.datasets.shape_dataset import ShapeDataset
-
-
-
-def Gauss(x, A, u, sigma):
-    return A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
+from IntelliStat.utils.components.component_functions import Gauss
 
 
 def main():
     EvolutionalNN = ENN(20, 20, 10, 5, 2)
     epoch = 500
-    X_data = [[X / 2 for X in range(20)] for it in range(500)]
-    Y_data = [[4 * random() + 3, 0.5 + random()] for X in X_data]
+    X_data = [[X / 2 for X in range(20)] for _ in range(500)]
+    Y_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
@@ -24,20 +21,16 @@ def main():
     EvolutionalNN.train(Dataset, epoch, 20)
 
     # After training, checking performance
-    X_NN = torch.tensor(X_data)
+    test_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]
+    test_data = np.array(test_data, dtype=np.float32)
+    test_data = ShapeDataset(X_data, "Gauss", test_data).X
+    X_NN = torch.tensor(test_data)
     Y_NN = EvolutionalNN.model(X_NN)
     Y_NN = Y_NN.detach().numpy()
 
-    # for i in range(len(Y_data)):
-    #    print("Mean, real : ", Y_data[i][0], " , trained: ", Y_NN[i][0])
-    #    print("Std, real : ", Y_data[i][1], " , trained: ", Y_NN[i][1])
-
     vis_len = 100
-    In_data = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
     F_X = np.linspace(0, 10, vis_len, endpoint=False)
-    for i in range(len(X_data)):
-        for j in range(vis_len):
-            In_data[i][j] = Gauss(F_X[j], 1, Y_data[i][0], Y_data[i][1])
+    In_data = Gauss(F_X, 1, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
 
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)

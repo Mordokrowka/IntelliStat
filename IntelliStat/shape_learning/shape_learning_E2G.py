@@ -1,15 +1,13 @@
-import numpy as np
+import math
 from random import random
+
+import numpy as np
 import torch
 from matplotlib import pyplot as plt
-import math
 
 from IntelliStat.neural_networks.ENN import ENN
 from IntelliStat.utils.datasets.shape_dataset import ShapeDataset
-
-
-def Gauss(x, A, u, sigma):
-    return A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
+from IntelliStat.utils.components.component_functions import Gauss
 
 
 def main():

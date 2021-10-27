@@ -1,46 +1,44 @@
-import numpy as np
 from random import random
+
+import numpy as np
 import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks.ENN import ENN
 from IntelliStat.utils.datasets.shape_dataset import ShapeDataset
-
-
-def Gauss(x, A, u, sigma):
-    return A * np.exp(-np.power(x - u, 2) / (2 * np.power(sigma, 2)))
+from IntelliStat.utils.components.component_functions import Gauss
 
 
 def main():
     EvolutionalNN = ENN(40, 20, 20, 10, 4)
 
-    X_data = [[X / 2 for X in range(40)] for it in range(1000)]
-    Y_data = [[random() + 4, 0.5, random() + 6, 0.5] for X in X_data]
+    X_data = [[X / 2 for X in range(40)] for _ in range(1000)]
+    Y_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
     Dataset = ShapeDataset(X_data, "Gauss+Gauss", Y_data)
     EvolutionalNN.train(Dataset, 500, 20)
 
-    X_NN = torch.tensor(X_data)
+    test_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
+    test_data = np.array(test_data, dtype=np.float32)
+    test_data = ShapeDataset(X_data, "Gauss+Gauss", test_data).X
+    X_NN = torch.tensor(test_data)
     Y_NN = EvolutionalNN.model(X_NN)
     Y_NN = Y_NN.detach().numpy()
-    # print(X_NN)
-    for i in range(len(Y_data)):
+
+    for i in range(Y_data.shape[0]):
         print("Mean, real : ", Y_data[i][0], Y_data[i][2], " , trained: ", Y_NN[i][0], Y_NN[i][2])
         print("Std, real : ", Y_data[i][1], Y_data[i][3], " , trained: ", Y_NN[i][1], Y_NN[i][3])
 
     vis_len = 100
-    In_data = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    In_data_g1 = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    In_data_g2 = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
+
     F_X = np.linspace(0, 10, vis_len, endpoint=False)
-    for i in range(len(X_data)):
-        for j in range(vis_len):
-            In_data[i][j] = Gauss(F_X[j], 1, Y_data[i][0], Y_data[i][1]) \
-                            + Gauss(F_X[j], 1, Y_data[i][2], Y_data[i][3])
-            In_data_g1[i][j] = Gauss(F_X[j], 1, Y_data[i][0], Y_data[i][1])
-            In_data_g2[i][j] = Gauss(F_X[j], 1, Y_data[i][2], Y_data[i][3])
+
+    In_data_g1 = Gauss(F_X, 1, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
+    In_data_g2 = Gauss(F_X, 1, Y_data[:, 2].reshape(-1, 1), Y_data[:, 3].reshape(-1, 1))
+    In_data = In_data_g1 + In_data_g2
+
 
     fig, ax = plt.subplots()
     ax.plot(np.linspace(0, 10, vis_len, endpoint=False), In_data_g1[1], 'g-.', label="Partial Gauss 1")

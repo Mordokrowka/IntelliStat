@@ -8,23 +8,22 @@ from IntelliStat.utils.datasets import FunctionDataset
 from IntelliStat.neural_networks.ENN import ENN
 
 
+# TODO FIX
 def main():
-    EvolutionalNN = ENN(1, 2, 2, 2, 1)
-    # for param_tensor in EvolutionalNN.model.state_dict():
-    # print(param_tensor, "\t", EvolutionalNN.model.state_dict()[param_tensor][0])
+    EvolutionalNN = ENN(1, 2, 4, 2, 1)
 
-    X_data = [n_x + 3 * (random() - 0.5) for n_x in range(50)]
-    # Y_tensor = torch.tensor(Y_tensor)
-    Y_data = [[(2 * x_point + 2 + 10 * (random() - 0.5))] for x_point in X_data]
-    X_data = [[x] for x in X_data]
+    X_data = [[n_x + 3 * (random() - 0.5)] for n_x in range(50)]
+    Y_data = [[(2 * x_point[0] + 2 + 10 * (random() - 0.5))] for x_point in X_data]
+
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
-    X_tensor = X_data
-    X_tensor = torch.tensor(X_tensor)
 
     Dataset = FunctionDataset(X_data, "linear", [2, 2])
-    EvolutionalNN.train(Dataset, 200, 5)
+    EvolutionalNN.train(Dataset, 2000, 5)
 
+    X_tensor = [[n_x + 3 * (random() - 0.5)] for n_x in range(50)]
+    X_data = np.array(X_data, dtype=np.float32)
+    X_tensor = torch.tensor(X_tensor)
     Y_NN = EvolutionalNN.model(X_tensor)
     Y_NN = Y_NN.detach().numpy()
 

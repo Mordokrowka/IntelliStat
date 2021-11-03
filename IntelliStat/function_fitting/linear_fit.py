@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 def linear_regression(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, float]:
     sumX = np.sum(X_data)
-    sumX2 = np.sum(X_data * X_data)
+    sumX2 = np.sum(X_data ** 2)
     sumY = np.sum(Y_data)
     sumXY = np.sum(X_data * Y_data)
 
@@ -17,9 +17,9 @@ def linear_regression(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, fl
     return a, b
 
 
-def linear_genetic_optimization(X_data, Y_data) -> Tuple[float, float]:
-    N = 50
-    params = 2
+def linear_genetic_optimization(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, float]:
+    N: int = 50
+    params: int = 2
 
     vec, vec2 = list(range(N * params)), list(range(N * params))
 
@@ -56,7 +56,7 @@ def linear_genetic_optimization(X_data, Y_data) -> Tuple[float, float]:
     return vec[best_solution], vec[best_solution + N]
 
 
-def calculate_cost(X_data, Y_data, agents) -> list:
+def calculate_cost(X_data: np.ndarray, Y_data: np.ndarray, agents) -> List[float]:
     cost: list = []
     N = int(len(agents) / 2)
     for i in range(N):
@@ -66,11 +66,11 @@ def calculate_cost(X_data, Y_data, agents) -> list:
     return cost
 
 
-def apply_boundary(min, max, value):
-    if value < min:
-        result = min + 0.01 * (max - min) * random()
-    elif value > max:
-        result = max - 0.01 * (max - min) * random()
+def apply_boundary(minimum: float, maximum: float, value: float) -> float:
+    if value < minimum:
+        result = minimum + 0.01 * (maximum - minimum) * random()
+    elif value > maximum:
+        result = maximum - 0.01 * (maximum - minimum) * random()
     else:
         result = value
 
@@ -85,26 +85,31 @@ def main():
     fig, ax = plt.subplots()
     ax.plot(X_data, Y_data, 'ro', label="Data points")
 
+    # Linear regression
     a, b = linear_regression(X_data, Y_data)
     print(a, b)
+
     Y = [a * x_point + b for x_point in range(50)]
     ax.plot(Y, 'green', label="Linear regression")
 
-    a_opt, b_opt = linear_genetic_optimization(X_data, Y_data)
-    print(a_opt, b_opt)
-    Y_opt = [a_opt * x_point + b_opt for x_point in range(50)]
-    ax.plot(Y_opt, 'blue', label="Differential optimization")
-
-    ax.legend()
-
     a, b = round(a, 8), round(b, 8)
-    a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
     ax.text(0.6, 0.2, "y = " + str(a) + "x + " + str(b), horizontalalignment='center',
             verticalalignment='center',
             transform=ax.transAxes, color='green')
+
+    # Differential optimization
+    a_opt, b_opt = linear_genetic_optimization(X_data, Y_data)
+    print(a_opt, b_opt)
+
+    Y_opt = [a_opt * x_point + b_opt for x_point in range(50)]
+    ax.plot(Y_opt, 'blue', label="Differential optimization")
+
+    a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
     ax.text(0.6, 0.1, "y = " + str(a_opt) + "x + " + str(b_opt), horizontalalignment='center',
             verticalalignment='center',
             transform=ax.transAxes, color='blue')
+
+    ax.legend()
 
     plt.show()
 

@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from IntelliStat.utils.components.component_functions import Gauss
 
 
-def gaussian_regression(X_data, Y_data) -> Tuple[float, float, float]:
+def gaussian_regression(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, float, float]:
     # Hongwei G., A simple algorithm for fitting a gaussian function,
     # IEEE Signal Processing Magazine 28(5) 2011
 
@@ -33,7 +33,7 @@ def gaussian_regression(X_data, Y_data) -> Tuple[float, float, float]:
     return A.mean(), u.mean(), sigma.mean()
 
 
-def gauss_genetic_optimization(X_data, Y_data) -> Tuple[float, float, float]:
+def gauss_genetic_optimization(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, float, float]:
     N = 50
     params = 3
 
@@ -45,9 +45,9 @@ def gauss_genetic_optimization(X_data, Y_data) -> Tuple[float, float, float]:
         vec[i + N] = 50 * random()
         vec[i + 2 * N] = 10 * random()
 
-    cost = calculate_cost(X_data, Y_data, vec)
+    cost: List[float] = calculate_cost(X_data, Y_data, vec)
 
-    for loop in range(400):
+    for _ in range(400):
         for j in range(N):
             e = 2 * random() - 1
             z1 = round((N - 1) * random())
@@ -60,7 +60,7 @@ def gauss_genetic_optimization(X_data, Y_data) -> Tuple[float, float, float]:
             vec2[j + N] = apply_boundary(0, 50, vec2[j + N])
             vec2[j + 2 * N] = apply_boundary(0, 25, vec2[j + 2 * N])
 
-        cost2 = calculate_cost(X_data, Y_data, vec2)
+        cost2: List[float] = calculate_cost(X_data, Y_data, vec2)
 
         for j in range(N):
             if cost2[j] < cost[j]:
@@ -69,9 +69,9 @@ def gauss_genetic_optimization(X_data, Y_data) -> Tuple[float, float, float]:
                 vec[j + 2 * N] = vec2[j + 2 * N]
                 cost[j] = cost2[j]
 
-    cost2 = calculate_cost(X_data, Y_data, vec)
+    cost2: List[float] = calculate_cost(X_data, Y_data, vec)
 
-    best_solution = cost2.index(min(cost2))
+    best_solution: int = cost2.index(min(cost2))
 
     return vec[best_solution], vec[best_solution + N], vec[best_solution + 2 * N]
 
@@ -86,11 +86,11 @@ def calculate_cost(X_data: np.ndarray, Y_data: np.ndarray, agents) -> List[float
     return cost
 
 
-def apply_boundary(min, max, value):
-    if value < min:
-        result = min + 0.01 * (max - min) * random()
-    elif value > max:
-        result = max - 0.01 * (max - min) * random()
+def apply_boundary(minimum: float, maximum: float, value: float) -> float:
+    if value < minimum:
+        result = minimum + 0.01 * (maximum - minimum) * random()
+    elif value > maximum:
+        result = maximum - 0.01 * (maximum - minimum) * random()
     else:
         result = value
 
@@ -99,14 +99,12 @@ def apply_boundary(min, max, value):
 
 def gaussian_method_of_moments(X_data: np.ndarray, Y_data: np.ndarray) -> tuple:
 
-    sumY = np.sum(Y_data)
-
-    sumY = sumY * (max(X_data) - min(X_data)) / len(Y_data)
+    sumY = np.sum(Y_data) * (max(X_data) - min(X_data)) / len(Y_data)
 
     u = np.sum(X_data * Y_data / sumY)
 
-    sigma = np.sum((((X_data - u) ** 2) * Y_data) / sumY)
-    sigma = np.sqrt(sigma)
+    sigma = np.sqrt(np.sum((((X_data - u) ** 2) * Y_data) / sumY))
+
     A = np.sum(sumY * (1 / (sigma * np.sqrt(2 * np.pi))))
 
     return A, u, sigma

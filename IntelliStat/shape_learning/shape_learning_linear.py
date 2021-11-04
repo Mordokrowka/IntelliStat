@@ -5,12 +5,12 @@ import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.utils.datasets import FunctionDataset
-from IntelliStat.neural_networks.ENN import ENN
+from IntelliStat.neural_networks import ENN
 
 
 # TODO FIX
 def main():
-    EvolutionalNN = ENN(1, 2, 4, 2, 1)
+    EvolutionalNN = ENN(1, 2, 4, 2, 1, learning_rate=0.001)
 
     X_data = [[n_x + 3 * (random() - 0.5)] for n_x in range(50)]
     Y_data = [[(2 * x_point[0] + 2 + 10 * (random() - 0.5))] for x_point in X_data]

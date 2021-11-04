@@ -10,7 +10,7 @@ from IntelliStat.utils.components.component_functions import Gauss
 
 
 def main():
-    EvolutionalNN = ENN(20, 20, 10, 5, 2)
+    EvolutionalNN = ENN(20, 20, 10, 5, 2, learning_rate=0.001)
     epoch = 500
     X_data = [[X / 2 for X in range(20)] for _ in range(500)]
     Y_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]

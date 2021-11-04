@@ -15,7 +15,7 @@ def shape_classifier():
 
     samples = 1400
     classes: int = 6
-    EvolutionalNN = ENN_Classifier(40, 40, 20, 10, classes)
+    EvolutionalNN = ENN_Classifier(40, 40, 20, 10, classes, 0.001)
 
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)

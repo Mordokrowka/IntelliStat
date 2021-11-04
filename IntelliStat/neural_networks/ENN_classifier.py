@@ -4,9 +4,12 @@ import torch
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Dataset
 
+from IntelliStat.neural_networks.neural_network import BaseNeuralNetwork
 
-class ENN_Classifier:
+
+class ENN_Classifier(BaseNeuralNetwork):
     def __init__(self, n_in: int, n_hidden1: int, n_hidden2: int, n_hidden3: int, n_out: int):
+        super().__init__()
         self.model = torch.nn.Sequential(
             torch.nn.Linear(n_in, n_hidden1),
             torch.nn.ReLU(),

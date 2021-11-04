@@ -1,0 +1,26 @@
+{
+  "components": [
+	{
+	  "name": "Exp",
+	  "amount": 1,
+	  "params": [
+		{
+		  "name": "B",
+		  "value": 0.7,
+		  "range": [
+			0,
+			0.6
+		  ]
+		},
+		{
+		  "name": "b",
+		  "value": 0.5,
+		  "range": [
+			0,
+			1
+		  ]
+		}
+	  ]
+	}
+  ]
+}

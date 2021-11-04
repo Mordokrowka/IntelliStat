@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 from IntelliStat.generic_builders.model_builder.model_builder import ModelBuilder
 from IntelliStat.datasets import BaseDataset
-from IntelliStat.generic_builders.shape_builder import Component
+from IntelliStat.generic_builders.shape_builder.shape_builder import ShapeBuilder
 
 
 def shape_classifier():
@@ -18,7 +18,7 @@ def shape_classifier():
 
     EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
-    configuration = builder.load_configuration(config_file=config_file)
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
     samples = configuration.samples
     batch_size = configuration.batch_size
@@ -32,7 +32,7 @@ def shape_classifier():
 
     for c in range(classes):
         for i in range(samples):
-            X_data[i + c * samples] = Component[c].generate_data(
+            X_data[i + c * samples] = ShapeBuilder[c].build_shape(
                 X_data[i + c * samples]
             )
             Y_data[i + c * samples] = c
@@ -77,7 +77,7 @@ def shape_classifier():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = Component('Gauss+Gauss+Exp').generate_data(X_plot)
+    X_plot = ShapeBuilder('Gauss+Gauss+Exp').build_shape(X_plot)
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="GGE(x)")
     ax[0, 1].set_xlabel('X argument')
     ax[0, 1].set_ylabel('GGE(x)')

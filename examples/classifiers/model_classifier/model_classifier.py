@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 
 from IntelliStat.generic_builders.model_builder.model_builder import ModelBuilder
 from IntelliStat.datasets import BaseDataset
-from IntelliStat.generic_builders.shape_builder import Component
+from IntelliStat.generic_builders.shape_builder.shape_builder import ShapeBuilder
 
 
 def model_classifier():
@@ -18,7 +18,7 @@ def model_classifier():
 
     EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
-    configuration = builder.load_configuration(config_file=config_file)
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
     samples = configuration.samples
     batch_size = configuration.batch_size
@@ -33,8 +33,8 @@ def model_classifier():
 
     for c in range(classes):
         for i in range(samples):
-            component = Component[c]
-            X_data[i + c * samples] = component.generate_data(
+            component = ShapeBuilder[c]
+            X_data[i + c * samples] = component.build_shape(
                 x=X_data[i + c * samples]
             )
             Y_data[i + c * samples] = component.class_vector
@@ -50,7 +50,7 @@ def model_classifier():
     accuraccy: int = 0
 
     for i in range(Y_NN.shape[0]):
-        if np.array_equal(Y_test[i], Component[3].class_vector):
+        if np.array_equal(Y_test[i], ShapeBuilder[3].class_vector):
             idx_gge.append(i)
         if round(Y_NN[i, 0]) == Y_test[i, 0] and round(Y_NN[i][1]) == Y_test[i, 1]:
             accuraccy = accuraccy + 1
@@ -80,7 +80,7 @@ def model_classifier():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = Component('7G').generate_data(X_plot)
+    X_plot = ShapeBuilder('7G').build_shape(X_plot)
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="7G(x)")
     ax[0, 1].set_xlabel('X argument')
     # ax[0, 1].set_ylabel('GGE(x)')

@@ -25,7 +25,7 @@ def _wrap_list(ob):
 class BaseBuilder:
     def __init__(self):
         # Constant
-        self.config_schema_file = Path(__file__).parent / 'resources/config_schema.json'
+        self.config_schema_file: Optional[Path] = None
 
     @lru_cache(maxsize=1)
     def load_config_schema(self, config_schema_file: Optional[Path] = None):

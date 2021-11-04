@@ -8,6 +8,7 @@ from torch.utils.data import Dataset
 
 class BaseNeuralNetwork(ABC):
     def __init__(self):
+        self.loss_vector: Optional[list] = None
         self.model = None
 
     @abstractmethod

@@ -1,0 +1,56 @@
+{
+  "components": [
+	{
+	  "name": "Gauss",
+	  "amount": 2,
+	  "params": [
+		{
+		  "name": "A",
+		  "value": 0.7,
+		  "range": [
+			0,
+			0.6
+		  ]
+		},
+		{
+		  "name": "sigma",
+		  "value": 0.2,
+		  "range": [
+			0,
+			0.5
+		  ]
+		},
+		{
+		  "name": "u",
+		  "value": 1,
+		  "range": [
+			0,
+			0.8
+		  ]
+		}
+	  ]
+	},
+	{
+	  "name": "Exp",
+	  "amount": 1,
+	  "params": [
+		{
+		  "name": "B",
+		  "value": 0.7,
+		  "range": [
+			0,
+			0.6
+		  ]
+		},
+		{
+		  "name": "b",
+		  "value": 0.5,
+		  "range": [
+			0,
+			1
+		  ]
+		}
+	  ]
+	}
+  ]
+}

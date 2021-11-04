@@ -1,4 +1,4 @@
-from ..components.component_functions import Gauss, GG, GGE
+from IntelliStat.components.component_functions import Gauss, GG, GGE
 from .base_dataset import BaseDataset
 
 

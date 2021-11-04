@@ -6,8 +6,8 @@ import torch
 from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks import ENN
-from IntelliStat.utils.datasets.shape_dataset import ShapeDataset
-from IntelliStat.utils.components.component_functions import Gauss
+from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.components.component_functions import Gauss
 
 
 def main():

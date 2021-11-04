@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.utils.datasets import FunctionDataset
+from IntelliStat.datasets import FunctionDataset
 from IntelliStat.neural_networks import ENN
 
 

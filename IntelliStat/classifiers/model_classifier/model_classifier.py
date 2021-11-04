@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import List
 
 import numpy as np
@@ -5,17 +6,25 @@ import torch
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
+from IntelliStat.model_builder.model_builder import ModelBuilder
 from IntelliStat.utils.datasets import BaseDataset
-from IntelliStat.neural_networks import ENN
 from IntelliStat.utils.components import Component
 
 
 def model_classifier():
-    epoch: int = 80
-    samples = 2200
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
+
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file)
+    epoch: int = configuration.epoch
+    samples = configuration.samples
+    batch_size = configuration.batch_size
     classes: int = 10
     components: int = 2
-    EvolutionalNN = ENN(40, 40, 20, 10, components)
+    # EvolutionalNN = ENN(40, 40, 20, 10, components)
 
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
@@ -30,14 +39,12 @@ def model_classifier():
             )
             Y_data[i + c * samples] = component.class_vector
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
     Dataset = BaseDataset(X_train, Y_train)
-    EvolutionalNN.train(Dataset, epoch, 25)
+    EvolutionalNN.train(Dataset, epoch, batch_size)
 
-    X_NN = torch.tensor(X_test)
-    Y_NN = EvolutionalNN.model(X_NN)
-    Y_NN = Y_NN.detach().numpy()
+    Y_NN = EvolutionalNN.test(X_test)
 
     idx_gge: List[int] = []
     accuraccy: int = 0

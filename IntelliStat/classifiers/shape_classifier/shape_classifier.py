@@ -1,21 +1,29 @@
+from pathlib import Path
 from typing import List
 
 import numpy as np
-import torch
+
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
+from IntelliStat.model_builder.model_builder import ModelBuilder
 from IntelliStat.utils.datasets import BaseDataset
-from IntelliStat.neural_networks import ENN_Classifier
 from IntelliStat.utils.components import Component
 
 
 def shape_classifier():
-    epoch: int = 60
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
 
-    samples = 1400
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file)
+    epoch: int = configuration.epoch
+    samples = configuration.samples
+    batch_size = configuration.batch_size
+
     classes: int = 6
-    EvolutionalNN = ENN_Classifier(40, 40, 20, 10, classes, 0.001)
 
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
@@ -29,14 +37,12 @@ def shape_classifier():
             )
             Y_data[i + c * samples] = c
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
+    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
     dataset = BaseDataset(X_train, Y_train)
-    EvolutionalNN.train(dataset, epoch, 20)
+    EvolutionalNN.train(dataset, epoch, batch_size)
 
-    X_NN = torch.tensor(X_test)
-    Y_NN = EvolutionalNN.model(X_NN)
-    Y_NN = Y_NN.detach().numpy()
+    Y_NN = EvolutionalNN.test(X_test)
 
     idx_gge: List[int] = []
     accuracy: int = 0
@@ -71,7 +77,7 @@ def shape_classifier():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = Component('GGE').generate_data(X_plot)
+    X_plot = Component('Gauss+Gauss+Exp').generate_data(X_plot)
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="GGE(x)")
     ax[0, 1].set_xlabel('X argument')
     ax[0, 1].set_ylabel('GGE(x)')

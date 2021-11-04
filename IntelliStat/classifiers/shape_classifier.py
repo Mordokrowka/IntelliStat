@@ -6,29 +6,28 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from IntelliStat.utils.datasets import BaseDataset
-from IntelliStat.neural_networks.ENN_classifier import ENN_Classifier
+from IntelliStat.neural_networks import ENN_Classifier
 from IntelliStat.utils.components import Component
 
 
 def shape_classifier():
-
     epoch: int = 60
-    train_samples: int = 1200
-    test_samples: int = 200
+
+    samples = 1400
     classes: int = 6
     EvolutionalNN = ENN_Classifier(40, 40, 20, 10, classes)
 
-    X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * (train_samples + test_samples))]
+    X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
 
     Y_data: np.ndarray = np.zeros(X_data.shape[0], dtype=np.longlong)
 
     for c in range(classes):
-        for i in range(train_samples + test_samples):
-            X_data[i + c * (train_samples + test_samples)] = Component[c].generate_data(
-                X_data[i + c * (train_samples + test_samples)]
+        for i in range(samples):
+            X_data[i + c * samples] = Component[c].generate_data(
+                X_data[i + c * samples]
             )
-            Y_data[i + c * (train_samples + test_samples)] = c
+            Y_data[i + c * samples] = c
 
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=0.3)
 

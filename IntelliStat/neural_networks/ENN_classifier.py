@@ -8,7 +8,7 @@ from IntelliStat.neural_networks.neural_network import BaseNeuralNetwork
 
 
 class ENN_Classifier(BaseNeuralNetwork):
-    def __init__(self, n_in: int, n_hidden1: int, n_hidden2: int, n_hidden3: int, n_out: int):
+    def __init__(self, n_in: int, n_hidden1: int, n_hidden2: int, n_hidden3: int, n_out: int, learning_rate: float):
         super().__init__()
         self.model = torch.nn.Sequential(
             torch.nn.Linear(n_in, n_hidden1),
@@ -20,18 +20,8 @@ class ENN_Classifier(BaseNeuralNetwork):
             torch.nn.Linear(n_hidden3, n_out),
             torch.nn.Softmax(dim=1)
         )
-        self.optimizer = Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = Adam(self.model.parameters(), lr=learning_rate)
         self.loss_vector = []
-
-    def train_step(self, x, y, criterion):
-        self.model.zero_grad()
-
-        x = x.float()
-
-        output = self.model(x)
-        loss = criterion(output, y)
-        loss.backward()
-        self.optimizer.step()
 
     def train(self, data: Dataset, epochs: int, batch: Optional[int]):
         data_train = DataLoader(dataset=data, batch_size=batch, shuffle=True)
@@ -44,3 +34,13 @@ class ENN_Classifier(BaseNeuralNetwork):
                 self.train_step(x_train, y_train, criterion)
             loss = criterion(self.model(x_train.float()), y_train)
             self.loss_vector.append(loss.item())
+
+    def train_step(self, x, y, criterion):
+        self.model.zero_grad()
+
+        x = x.float()
+
+        output = self.model(x)
+        loss = criterion(output, y)
+        loss.backward()
+        self.optimizer.step()

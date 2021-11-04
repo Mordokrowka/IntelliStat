@@ -11,11 +11,11 @@ class BaseNeuralNetwork(ABC):
         self.model = None
 
     @abstractmethod
-    def train_step(self, x, y, criterion):
+    def train(self, data: Dataset, epochs: int, batch: Optional[int]):
         ...
 
     @abstractmethod
-    def train(self, data: Dataset, epochs: int, batch: Optional[int]):
+    def train_step(self, x, y, criterion):
         ...
 
     def test(self, X_test) -> np.ndarray:

@@ -1,7 +1,7 @@
-from .ENN import ENN
-from .ENN_classifier import ENN_Classifier
+from .enn import ENN
+from .enn_classifier import ENN_Classifier
 
 available_neural_networks = {
     "ENN": ENN,
-    "ENN_classifier": ENN_classifier
+    "ENN_classifier": ENN_Classifier
 }

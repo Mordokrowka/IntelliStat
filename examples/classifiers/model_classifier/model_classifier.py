@@ -6,9 +6,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from IntelliStat.model_builder.model_builder import ModelBuilder
+from IntelliStat.generic_builders.model_builder.model_builder import ModelBuilder
 from IntelliStat.datasets import BaseDataset
-from IntelliStat.components import Component
+from IntelliStat.generic_builders.shape_builder import Component
 
 
 def model_classifier():

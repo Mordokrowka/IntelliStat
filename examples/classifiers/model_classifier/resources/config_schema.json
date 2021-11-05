@@ -9,31 +9,7 @@
           "type": "string"
         },
         "layers": {
-          "type": "object",
-          "properties": {
-            "n_in": {
-              "type": "integer"
-            },
-            "n_hidden1": {
-              "type": "integer"
-            },
-            "n_hidden2": {
-              "type": "integer"
-            },
-            "n_hidden3": {
-              "type": "integer"
-            },
-            "n_out": {
-              "type": "integer"
-            }
-          },
-          "required": [
-            "n_in",
-            "n_hidden1",
-            "n_hidden2",
-            "n_hidden3",
-            "n_out"
-          ]
+          "type": "object"
         },
         "learning_rate": {
           "type": "number"

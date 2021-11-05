@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 from IntelliStat.neural_networks import ENN
 from IntelliStat.datasets.shape_dataset import ShapeDataset
-from IntelliStat.generic_builders.shape_builder.component_functions import Gauss
+from IntelliStat.generic_builders.component_builder.component_functions import Gauss
 
 
 def main():

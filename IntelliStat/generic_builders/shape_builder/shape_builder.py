@@ -5,8 +5,8 @@ from typing import Optional
 
 import numpy as np
 
-from IntelliStat.generic_builders.base_builder import BaseBuilder
-from IntelliStat.generic_builders.shape_builder.component_builder import ComponentBuilder
+from IntelliStat.generic_builders import BaseBuilder
+from IntelliStat.generic_builders import ComponentBuilder
 
 
 class ShapeBuilderEnumMeta(EnumMeta):

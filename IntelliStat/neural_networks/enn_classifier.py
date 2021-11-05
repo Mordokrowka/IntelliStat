@@ -4,7 +4,7 @@ import torch
 from torch.optim import Adam
 from torch.utils.data import DataLoader, Dataset
 
-from IntelliStat.neural_networks.neural_network import BaseNeuralNetwork
+from IntelliStat.neural_networks import BaseNeuralNetwork
 
 
 class ENN_Classifier(BaseNeuralNetwork):

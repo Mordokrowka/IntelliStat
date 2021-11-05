@@ -1,5 +1,5 @@
 from .base_dataset import BaseDataset
-from ..generic_builders.shape_builder.component_functions import GG, GGE, Gauss
+from IntelliStat.generic_builders.component_builder.component_functions import GG, GGE, Gauss
 
 
 class ShapeDataset(BaseDataset):

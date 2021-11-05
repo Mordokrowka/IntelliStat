@@ -3,7 +3,7 @@ from typing import Callable
 
 import numpy as np
 
-from IntelliStat.generic_builders.shape_builder.component_functions import Exp, Gauss
+from IntelliStat.generic_builders.component_builder.component_functions import Exp, Gauss
 
 
 class ComponentBuilderEnumMeta(EnumMeta):

@@ -1,5 +1,5 @@
 import json
-from functools import lru_cache, singledispatch
+from functools import singledispatch
 from pathlib import Path
 from typing import Optional
 from types import SimpleNamespace
@@ -27,12 +27,11 @@ class BaseBuilder:
         # Constant
         self.config_schema_file: Optional[Path] = None
 
-    @lru_cache(maxsize=1)
-    def load_config_schema(self, config_schema_file: Optional[Path] = None):
+    @staticmethod
+    def load_config_schema(config_schema_file: Optional[Path] = None):
         with config_schema_file.open() as fp:
             return json.load(fp)
 
-    @lru_cache(maxsize=1)
     def load_configuration(self, config_file: Path, config_schema_file: Optional[Path] = None):
         config_schema_file = config_schema_file if config_schema_file else self.config_schema_file
         with config_file.open() as fp:

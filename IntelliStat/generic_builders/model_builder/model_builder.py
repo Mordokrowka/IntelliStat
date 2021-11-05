@@ -8,7 +8,6 @@ from IntelliStat.neural_networks import BaseNeuralNetwork
 
 class ModelBuilder(BaseBuilder):
     def __init__(self):
-        # Constant
         super().__init__()
 
     def build_model(self, config_file: Path, config_schema_file: Optional[Path] = None) -> BaseNeuralNetwork:

@@ -23,7 +23,6 @@ def model_classifier():
     batch_size = configuration.batch_size
     classes: int = 10
     components: int = 2
-    # EvolutionalNN = ENN(40, 40, 20, 10, components)
 
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
@@ -32,11 +31,11 @@ def model_classifier():
 
     for c in range(classes):
         for i in range(samples):
-            component = ShapeBuilder[c]
-            X_data[i + c * samples] = component.build_shape(
+            shape = ShapeBuilder[c]
+            X_data[i + c * samples] = shape.build_shape(
                 x=X_data[i + c * samples]
             )
-            Y_data[i + c * samples] = component.class_vector
+            Y_data[i + c * samples] = shape.class_vector
 
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 

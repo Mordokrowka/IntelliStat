@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
-from IntelliStat.datasets import BaseDataset
+from IntelliStat.datasets import Dataset
 from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 
 
@@ -39,8 +39,8 @@ def model_classifier():
 
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
-    Dataset = BaseDataset(X_train, Y_train)
-    EvolutionalNN.train(Dataset, epoch, batch_size)
+    dataset = Dataset(X_train, Y_train)
+    EvolutionalNN.train(dataset, epoch, batch_size)
 
     Y_NN = EvolutionalNN.test(X_test)
 

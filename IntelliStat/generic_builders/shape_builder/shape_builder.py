@@ -51,7 +51,7 @@ class ShapeBuilder(BaseBuilder, Enum, metaclass=ShapeBuilderEnumMeta):
     def build_shape(self, x: np.ndarray, config_schema_file: Optional[Path] = None) -> np.ndarray:
 
         config = self.load_configuration(config_file=self.config_file, config_schema_file=config_schema_file)
-        shape: np.ndarray = np.zeros(x.shape)
+        shape: np.ndarray = np.zeros(x.shape, dtype=np.float32)
 
         for component in config.components:
             for _ in range(component.amount):

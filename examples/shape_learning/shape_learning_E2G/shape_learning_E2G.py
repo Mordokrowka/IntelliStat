@@ -1,39 +1,46 @@
 import math
+from pathlib import Path
 from random import random
 
 import numpy as np
-import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.neural_networks import ENN
-from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.datasets.dataset import Dataset
+from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 from IntelliStat.generic_builders.component_builder.component_functions import Gauss
 
 
 def main():
-    EvolutionalNN = ENN(80, 40, 24, 12, 4, learning_rate=0.001)
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
 
-    X_data = [[X / 2 for X in range(80)] for it in range(2200)]
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    epoch: int = configuration.epoch
+    batch_size = configuration.batch_size
+
+    X_data = [[X / 2 for X in range(80)] for _ in range(epoch)]
     Y_data = [[random() + 4, 0.32 + random() / 2, random() + 6, 0.32 + random() / 2] for X in X_data]
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = ShapeDataset(X_data, "Gauss+Gauss+Exp", Y_data)
-    EvolutionalNN.train(Dataset, 800, 20)
+    shape = ShapeBuilder.Gauss_Gauss_Exp.build_shape(X_data)
+    dataset = Dataset(shape, Y_data)
+    EvolutionalNN.train(dataset, epoch, batch_size)
 
-    X_NN = torch.tensor(X_data)
-    Y_NN = EvolutionalNN.model(X_NN)
-    Y_NN = Y_NN.detach().numpy()
-    # print(X_NN)
+    Y_NN = EvolutionalNN.test(X_data)
+
     for i in range(len(Y_data)):
         print("Mean, real : ", Y_data[i][0], Y_data[i][2], " , trained: ", Y_NN[i][0], Y_NN[i][2])
         print("Std, real : ", Y_data[i][1], Y_data[i][3], " , trained: ", Y_NN[i][1], Y_NN[i][3])
 
     vis_len = 100
-    In_data = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    In_data_g1 = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    In_data_g2 = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
-    In_data_e = [[0 for t2 in range(vis_len)] for t1 in range(len(X_data))]
+    In_data = [[0 for _ in range(vis_len)] for _ in range(len(X_data))]
+    In_data_g1 = [[0 for _ in range(vis_len)] for _ in range(len(X_data))]
+    In_data_g2 = [[0 for _ in range(vis_len)] for _ in range(len(X_data))]
+    In_data_e = [[0 for _ in range(vis_len)] for _ in range(len(X_data))]
     F_X = np.linspace(0, 10, vis_len, endpoint=False)
     for i in range(len(X_data)):
         for j in range(vis_len):

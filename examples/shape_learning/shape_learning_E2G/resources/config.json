@@ -1,0 +1,15 @@
+{
+  "neural_network": {
+	"name": "ENN",
+	"layers": {
+	  "n_in": 80,
+	  "n_hidden1": 40,
+	  "n_hidden2": 24,
+	  "n_hidden3": 12,
+	  "n_out": 4
+	},
+	"learning_rate": 0.001
+  },
+  "batch_size": 20,
+  "epoch": 800
+}

@@ -1,32 +1,38 @@
+from pathlib import Path
 from random import random
 
 import numpy as np
-import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.neural_networks import ENN
-from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.datasets.dataset import Dataset
+from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 from IntelliStat.generic_builders.component_builder.component_functions import Gauss
 
 
 def main():
-    EvolutionalNN = ENN(20, 20, 10, 5, 2, learning_rate=0.001)
-    epoch = 500
-    X_data = [[X / 2 for X in range(20)] for _ in range(500)]
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
+
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    epoch: int = configuration.epoch
+    batch_size = configuration.batch_size
+
+    X_data = [[X / 2 for X in range(20)] for _ in range(epoch)]
     Y_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]
+
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = ShapeDataset(X_data, "Gauss", Y_data)
-    EvolutionalNN.train(Dataset, epoch, 20)
+    shape = ShapeBuilder.Gauss.build_shape(X_data)
+    dataset = Dataset(shape, Y_data)
+    EvolutionalNN.train(dataset, epoch, batch_size)
 
     # After training, checking performance
-    test_data = [[4 * random() + 3, 0.5 + random()] for _ in X_data]
-    test_data = np.array(test_data, dtype=np.float32)
-    test_data = ShapeDataset(X_data, "Gauss", test_data).X
-    X_NN = torch.tensor(test_data)
-    Y_NN = EvolutionalNN.model(X_NN)
-    Y_NN = Y_NN.detach().numpy()
+    test_data = ShapeBuilder.Gauss.build_shape(X_data)
+    Y_NN = EvolutionalNN.test(test_data)
 
     vis_len = 100
     F_X = np.linspace(0, 10, vis_len, endpoint=False)

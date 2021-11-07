@@ -1,31 +1,37 @@
+from pathlib import Path
 from random import random
 
 import numpy as np
-import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.neural_networks import ENN
-from IntelliStat.datasets.shape_dataset import ShapeDataset
+from IntelliStat.datasets.dataset import Dataset
 from IntelliStat.generic_builders.component_builder.component_functions import Gauss
+from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 
 
 def main():
-    EvolutionalNN = ENN(40, 20, 20, 10, 4, learning_rate=0.001)
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
+
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    epoch: int = configuration.epoch
+    batch_size = configuration.batch_size
 
     X_data = [[X / 2 for X in range(40)] for _ in range(1000)]
     Y_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = ShapeDataset(X_data, "Gauss+Gauss", Y_data)
-    EvolutionalNN.train(Dataset, 500, 20)
+    shape = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
+    dataset = Dataset(shape, Y_data)
+    EvolutionalNN.train(dataset, epoch, batch_size)
 
-    test_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
-    test_data = np.array(test_data, dtype=np.float32)
-    test_data = ShapeDataset(X_data, "Gauss+Gauss", test_data).X
-    X_NN = torch.tensor(test_data)
-    Y_NN = EvolutionalNN.model(X_NN)
-    Y_NN = Y_NN.detach().numpy()
+    test_data = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
+
+    Y_NN = EvolutionalNN.test(test_data)
 
     for i in range(Y_data.shape[0]):
         print("Mean, real : ", Y_data[i][0], Y_data[i][2], " , trained: ", Y_NN[i][0], Y_NN[i][2])
@@ -38,7 +44,6 @@ def main():
     In_data_g1 = Gauss(F_X, 1, Y_data[:, 0].reshape(-1, 1), Y_data[:, 1].reshape(-1, 1))
     In_data_g2 = Gauss(F_X, 1, Y_data[:, 2].reshape(-1, 1), Y_data[:, 3].reshape(-1, 1))
     In_data = In_data_g1 + In_data_g2
-
 
     fig, ax = plt.subplots()
     ax.plot(np.linspace(0, 10, vis_len, endpoint=False), In_data_g1[1], 'g-.', label="Partial Gauss 1")

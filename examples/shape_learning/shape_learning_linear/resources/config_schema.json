@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "neural_network": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "layers": {
+          "type": "object"
+        },
+        "learning_rate": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "layers",
+        "learning_rate"
+      ]
+    },
+    "batch_size": {
+      "type": "integer"
+    },
+    "epoch": {
+      "type": "integer"
+    },
+    "samples": {
+      "type": "integer"
+    },
+    "test_dataset_size": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "neural_network",
+    "batch_size",
+    "epoch"
+  ]
+}

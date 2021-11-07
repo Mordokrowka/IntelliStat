@@ -1,31 +1,39 @@
+from pathlib import Path
 from random import random
 
 import numpy as np
-import torch
 from matplotlib import pyplot as plt
 
-from IntelliStat.datasets import FunctionDataset
-from IntelliStat.neural_networks import ENN
+from IntelliStat.datasets.dataset import Dataset
+from IntelliStat.generic_builders import ModelBuilder
 
 
-# TODO FIX
 def main():
-    EvolutionalNN = ENN(1, 2, 4, 2, 1, learning_rate=0.001)
+    builder = ModelBuilder()
+    config_schema = Path(__file__).parent / 'resources/config_schema.json'
+    config_file = Path(__file__).parent / 'resources/config.json'
 
-    X_data = [[n_x + 3 * (random() - 0.5)] for n_x in range(50)]
+    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+
+    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    epoch: int = configuration.epoch
+    batch_size = configuration.batch_size
+
+    X_data = [[n_x + 3 * (random() - 0.5)] for n_x in range(epoch)]
     Y_data = [[(2 * x_point[0] + 2 + 10 * (random() - 0.5))] for x_point in X_data]
 
     X_data = np.array(X_data, dtype=np.float32)
     Y_data = np.array(Y_data, dtype=np.float32)
 
-    Dataset = FunctionDataset(X_data, "linear", [2, 2])
-    EvolutionalNN.train(Dataset, 2000, 5)
+    Y = X_data * 2 + 2
+    dataset = Dataset(X_data, Y)
 
-    X_tensor = [[n_x + 3 * (random() - 0.5)] for n_x in range(50)]
-    X_data = np.array(X_data, dtype=np.float32)
-    X_tensor = torch.tensor(X_tensor)
-    Y_NN = EvolutionalNN.model(X_tensor)
-    Y_NN = Y_NN.detach().numpy()
+    EvolutionalNN.train(dataset, epoch, batch_size)
+
+    X_tensor = [[n_x + 3 * (random() - 0.5)] for n_x in range(epoch)]
+    X_tensor = np.array(X_tensor, dtype=np.float32)
+
+    Y_NN = EvolutionalNN.test(X_tensor)
 
     fig, ax = plt.subplots()
     ax.plot(X_data, Y_data, 'ko', label="Data points")

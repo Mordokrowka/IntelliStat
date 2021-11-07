@@ -1,8 +1,8 @@
-from torch.utils.data import Dataset
+import torch.utils.data
 import numpy as np
 
 
-class BaseDataset(Dataset):
+class Dataset(torch.utils.data.Dataset):
     def __init__(self, X: np.ndarray, Y: np.ndarray):
         self.X = X
         self.Y = Y

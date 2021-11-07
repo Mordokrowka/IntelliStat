@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from IntelliStat.generic_builders import BaseBuilder
+from ..base_builder import BaseBuilder
 from IntelliStat.neural_networks import available_neural_networks
 from IntelliStat.neural_networks import BaseNeuralNetwork
 

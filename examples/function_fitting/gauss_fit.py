@@ -4,7 +4,7 @@ from typing import List, Tuple
 import numpy as np
 from matplotlib import pyplot as plt
 
-from IntelliStat.generic_builders.component_builder.component_functions import Gauss
+from IntelliStat.generic_builders.component_builder.components import Gauss
 
 
 def gaussian_regression(X_data: np.ndarray, Y_data: np.ndarray) -> Tuple[float, float, float]:

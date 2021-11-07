@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from IntelliStat.datasets.dataset import Dataset
-from IntelliStat.generic_builders.component_builder.component_functions import Gauss
+from IntelliStat.generic_builders.component_builder.components import Gauss
 from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 
 

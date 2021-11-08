@@ -1,1 +1,1 @@
-from .model_builder import ModelBuilder
+from .model_builder import build_model

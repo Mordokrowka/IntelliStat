@@ -8,27 +8,35 @@ from sklearn.model_selection import train_test_split
 
 from IntelliStat.datasets import Dataset
 from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
+from IntelliStat.neural_networks import BaseNeuralNetwork
 
 
 def shape_classifier():
+    # Initialize model builder
     builder = ModelBuilder()
+
+    # Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
-    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+    # Build neural network model
+    EvolutionalNN: BaseNeuralNetwork = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
+    # Configuration
     configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
-    samples = configuration.samples
-    batch_size = configuration.batch_size
+    samples: int = configuration.samples
+    batch_size: int = configuration.batch_size
+    classes: int = configuration.classes
 
-    classes: int = 6
-
+    # Create X data
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
 
+    # Initialize Y data
     Y_data: np.ndarray = np.zeros(X_data.shape[0], dtype=np.longlong)
 
+    # Fill Y data using ShapeBuilder
     for c in range(classes):
         for i in range(samples):
             X_data[i + c * samples] = ShapeBuilder[c].build_shape(
@@ -36,13 +44,19 @@ def shape_classifier():
             )
             Y_data[i + c * samples] = c
 
+    # Split data to test/train datasets
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
+    # Define dataset
     dataset = Dataset(X_train, Y_train)
+
+    # Train neural network model
     EvolutionalNN.train(dataset, epoch, batch_size)
 
+    # Test trained model
     Y_NN = EvolutionalNN.test(X_test)
 
+    # Calculate model accuracy
     idx_gge: List[int] = []
     accuracy: int = 0
     for i in range(len(Y_NN)):
@@ -50,12 +64,11 @@ def shape_classifier():
             idx_gge.append(i)
 
         if Y_NN[i, Y_test[i]] == max(Y_NN[i]):
-            accuracy = accuracy + 1
+            accuracy += 1
     accuracy = accuracy / Y_NN.shape[0]
     print("Reached accuracy: ", accuracy)
 
-    # for it in range(len(Y_NN)):
-    #    print(Y_NN[it], Y_test[it])
+    # Visualization
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)
     n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 0], 100, alpha=0.5, range=[0, 1], label='Gauss')

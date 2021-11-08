@@ -8,27 +8,36 @@ from sklearn.model_selection import train_test_split
 
 from IntelliStat.datasets import Dataset
 from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
+from IntelliStat.neural_networks import BaseNeuralNetwork
 
 
 def model_classifier():
+    # Initialize model builder
     builder = ModelBuilder()
+
+    # Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
-    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+    # Build neural network model
+    EvolutionalNN: BaseNeuralNetwork = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
+    # Configuration
     configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
-    samples = configuration.samples
-    batch_size = configuration.batch_size
-    classes: int = 10
-    components: int = 2
+    samples: int = configuration.samples
+    batch_size: int = configuration.batch_size
+    classes: int = configuration.classes
+    components: int = configuration.components
 
+    # Create X data
     X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(classes * samples)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
 
+    # Initialize Y data
     Y_data: np.ndarray = np.zeros((X_data.shape[0], components), dtype=np.float32)
 
+    # Fill Y data using ShapeBuilder
     for c in range(classes):
         for i in range(samples):
             shape = ShapeBuilder[c]
@@ -37,25 +46,32 @@ def model_classifier():
             )
             Y_data[i + c * samples] = shape.class_vector
 
+    # Split data to test/train datasets
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
+    # Define dataset
     dataset = Dataset(X_train, Y_train)
+
+    # Train neural network model
     EvolutionalNN.train(dataset, epoch, batch_size)
 
+    # Test trained model
     Y_NN = EvolutionalNN.test(X_test)
 
+    # Calculate model accuracy
     idx_gge: List[int] = []
-    accuraccy: int = 0
+    accuracy: int = 0
 
     for i in range(Y_NN.shape[0]):
         if np.array_equal(Y_test[i], ShapeBuilder[3].class_vector):
             idx_gge.append(i)
         if round(Y_NN[i, 0]) == Y_test[i, 0] and round(Y_NN[i][1]) == Y_test[i, 1]:
-            accuraccy = accuraccy + 1
+            accuracy += 1
 
-    accuraccy = accuraccy / Y_NN.shape[0]
-    print("Reached accuraccy: ", accuraccy)
+    accuracy = accuracy / Y_NN.shape[0]
+    print("Reached accuracy: ", accuracy)
 
+    # Visualization
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)
     n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 0], 100, alpha=0.5, range=[0, 3], color='red', label='Gauss')

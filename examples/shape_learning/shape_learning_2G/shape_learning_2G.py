@@ -10,29 +10,43 @@ from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
 
 
 def main():
+    # Initialize model builder
     builder = ModelBuilder()
+
+    # Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
+    # Build neural network model
     EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
+    # Configuration
     configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
     batch_size = configuration.batch_size
 
+    # Create X data
     X_data = [[X / 2 for X in range(40)] for _ in range(1000)]
-    Y_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
     X_data = np.array(X_data, dtype=np.float32)
+
+    # Create Y data
+    Y_data = [[random() + 4, 0.5, random() + 6, 0.5] for _ in X_data]
     Y_data = np.array(Y_data, dtype=np.float32)
 
+    # Create Double Gauss shape using ShapeBuilder
     shape = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
+
+    # Create Dataset
     dataset = Dataset(shape, Y_data)
+
+    # Train neural network model
     EvolutionalNN.train(dataset, epoch, batch_size)
 
+    # After training, checking performance
     test_data = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
-
     Y_NN = EvolutionalNN.test(test_data)
 
+    # Visualization
     for i in range(Y_data.shape[0]):
         print("Mean, real : ", Y_data[i][0], Y_data[i][2], " , trained: ", Y_NN[i][0], Y_NN[i][2])
         print("Std, real : ", Y_data[i][1], Y_data[i][3], " , trained: ", Y_NN[i][1], Y_NN[i][3])

@@ -9,32 +9,44 @@ from IntelliStat.generic_builders import ModelBuilder
 
 
 def main():
+    # Initialize model builder
     builder = ModelBuilder()
+
+    #  Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
+    # Build neural network model
     EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
 
+    # Configuration
     configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
-    batch_size = configuration.batch_size
+    batch_size: int = configuration.batch_size
 
+    # Create X data
     X_data = [[n_x + 3 * (random() - 0.5)] for n_x in range(epoch)]
-    Y_data = [[(2 * x_point[0] + 2 + 10 * (random() - 0.5))] for x_point in X_data]
-
     X_data = np.array(X_data, dtype=np.float32)
+
+    # Create Y data
+    Y_data = [[(2 * x_point[0] + 2 + 10 * (random() - 0.5))] for x_point in X_data]
     Y_data = np.array(Y_data, dtype=np.float32)
 
+    # Create linear shape
     Y = X_data * 2 + 2
+
+    # Create Dataset
     dataset = Dataset(X_data, Y)
 
+    # Train neural network model
     EvolutionalNN.train(dataset, epoch, batch_size)
 
+    # After training, checking performance
     X_tensor = [[n_x + 3 * (random() - 0.5)] for n_x in range(epoch)]
     X_tensor = np.array(X_tensor, dtype=np.float32)
-
     Y_NN = EvolutionalNN.test(X_tensor)
 
+    # Visualization
     fig, ax = plt.subplots()
     ax.plot(X_data, Y_data, 'ko', label="Data points")
     # print("Regression:")

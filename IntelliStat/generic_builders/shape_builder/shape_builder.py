@@ -1,7 +1,7 @@
 import random
-from enum import Enum, EnumMeta, auto
+from enum import Enum, EnumMeta, auto, unique
 from pathlib import Path
-from typing import Optional
+from typing import Union
 
 import numpy as np
 
@@ -10,6 +10,7 @@ from IntelliStat.generic_builders import ComponentBuilder
 
 
 class ShapeBuilderEnumMeta(EnumMeta):
+    """Add option to access by index to ShapeBuilder"""
     def __getitem__(self, index: int):
         if not isinstance(index, int):
             raise TypeError(f"`index` {index} is not an int")
@@ -19,7 +20,26 @@ class ShapeBuilderEnumMeta(EnumMeta):
         return list(self)[index]
 
 
+@unique
 class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
+    """Builds specified shapes
+
+    Available shapes:
+        - Gauss
+        - Gauss+Gauss
+        - Gauss+Gauss+Gauss
+        - Gauss+Gauss+Exp
+        - Gauss+Exp
+        - Exp
+        - 4 x Gauss
+        - 5 x Gauss
+        - 6 x Gauss
+        - 7 x Gauss
+
+    :param shape_name: human name of shape
+    :param components_vector: what are the components of shape
+    :param config_file: file based on which shape will be build
+    """
     Gauss = 'Gauss', (1, 0), 'gauss.json'
     Gauss_Gauss = 'Gauss+Gauss', (2, 0), 'gauss_gauss.json'
     Gauss_Gauss_Gauss = 'Gauss+Gauss+Gauss', (3, 0), 'gauss_gauss_gauss.json'
@@ -40,12 +60,12 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
 
         return obj
 
-    def __init__(self, component_name: str, class_vector: tuple, config_file: Path):
-        self.class_vector = class_vector
-        self.shapes_folder = Path(__file__).parent / 'shapes/'
-        self.component_name = component_name
-        self.config_file = self.shapes_folder / config_file
-        self.config_schema_file = Path(__file__).parent / 'schema/shape_schema.json'
+    def __init__(self, shape_name: str, components_vector: tuple, config_file: Union[Path, str]):
+        self.class_vector = components_vector
+        self.shapes_folder: Path = Path(__file__).parent / 'shapes/'
+        self.shape_name: str = shape_name
+        self.config_file: Path = self.shapes_folder / config_file
+        self.config_schema_file: Path = Path(__file__).parent / 'schema/shape_schema.json'
 
     def build_shape(self, x: np.ndarray) -> np.ndarray:
         config = load_configuration(config_file=self.config_file, config_schema_file=self.config_schema_file)
@@ -58,9 +78,3 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
                     component_params[param.name] = param.value + random.uniform(*param.range)
                 shape += ComponentBuilder(component.name).generate_component(x, **component_params)
         return shape
-
-
-if __name__ == '__main__':
-    builder = ShapeBuilder
-    test_x = np.array([[0, 1], [1, 2]])
-    print(builder.Gauss_Gauss_Exp.build_shape(x=test_x))

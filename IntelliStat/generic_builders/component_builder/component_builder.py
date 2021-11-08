@@ -18,6 +18,15 @@ class ComponentBuilderEnumMeta(EnumMeta):
 
 @unique
 class ComponentBuilder(Enum, metaclass=ComponentBuilderEnumMeta):
+    """Builds components
+
+    Available components:
+        - Gauss
+        - Exp
+
+    :param component_name: human name of component
+    :param data_generator: function which will generate component
+    """
     Gauss = 'Gauss', Gauss
     Exp = 'Exp', Exp,
 
@@ -45,9 +54,3 @@ class ComponentBuilder(Enum, metaclass=ComponentBuilderEnumMeta):
 
     def generate_component(self, x: np.ndarray, **kwargs) -> np.ndarray:
         return self.data_generator(x, **kwargs)
-
-
-if __name__ == '__main__':
-    print(repr(ComponentBuilder('Gauss')))
-    print(repr(ComponentBuilder[0]))
-    print(repr(ComponentBuilder.Gauss))

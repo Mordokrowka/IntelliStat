@@ -1,8 +1,9 @@
 import json
 from functools import singledispatch
 from pathlib import Path
-from typing import List, Union
 from types import SimpleNamespace
+from typing import List, Union
+
 
 from jsonschema import validate
 
@@ -23,12 +24,16 @@ def _wrap_list(ob) -> List[SimpleNamespace]:
 
 
 def load_configuration(config_file: Union[Path, str], config_schema_file: Union[Path, str]) -> SimpleNamespace:
+    """Loads json configuration file and validates against json schema.
+
+    :param config_file: path to config file
+    :param config_schema_file: path to json schema file
+    :return: configuration data
+    """
     with open(config_file) as fp:
         config_data = json.load(fp)
-        validate(config_data, schema=load_config_schema(config_schema_file))
+        with open(config_schema_file) as fp:
+            schema = json.load(fp)
+
+        validate(config_data, schema=schema)
         return wrap_namespace(config_data)
-
-
-def load_config_schema(config_schema_file: Union[Path, str]):
-    with open(config_schema_file) as fp:
-        return json.load(fp)

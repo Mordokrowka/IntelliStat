@@ -5,7 +5,7 @@ from typing import Optional
 
 import numpy as np
 
-from IntelliStat.generic_builders import BaseBuilder
+from IntelliStat.generic_builders.utils import load_configuration
 from IntelliStat.generic_builders import ComponentBuilder
 
 
@@ -19,7 +19,7 @@ class ShapeBuilderEnumMeta(EnumMeta):
         return list(self)[index]
 
 
-class ShapeBuilder(BaseBuilder, Enum, metaclass=ShapeBuilderEnumMeta):
+class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
     Gauss = 'Gauss', (1, 0), 'gauss.json'
     Gauss_Gauss = 'Gauss+Gauss', (2, 0), 'gauss_gauss.json'
     Gauss_Gauss_Gauss = 'Gauss+Gauss+Gauss', (3, 0), 'gauss_gauss_gauss.json'
@@ -41,16 +41,14 @@ class ShapeBuilder(BaseBuilder, Enum, metaclass=ShapeBuilderEnumMeta):
         return obj
 
     def __init__(self, component_name: str, class_vector: tuple, config_file: Path):
-        super().__init__()
         self.class_vector = class_vector
         self.shapes_folder = Path(__file__).parent / 'shapes/'
         self.component_name = component_name
         self.config_file = self.shapes_folder / config_file
         self.config_schema_file = Path(__file__).parent / 'schema/shape_schema.json'
 
-    def build_shape(self, x: np.ndarray, config_schema_file: Optional[Path] = None) -> np.ndarray:
-
-        config = self.load_configuration(config_file=self.config_file, config_schema_file=config_schema_file)
+    def build_shape(self, x: np.ndarray) -> np.ndarray:
+        config = load_configuration(config_file=self.config_file, config_schema_file=self.config_schema_file)
         shape: np.ndarray = np.zeros(x.shape, dtype=np.float32)
 
         for component in config.components:

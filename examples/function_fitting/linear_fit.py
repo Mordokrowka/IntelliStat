@@ -78,8 +78,11 @@ def apply_boundary(minimum: float, maximum: float, value: float) -> float:
 
 
 def main():
+    # Create X data
     X_data: List[float] = [not_biased_x_point + 2 * (random() - 0.5) for not_biased_x_point in range(50)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
+
+    # Create Y data
     Y_data: np.ndarray = 2 * X_data + 2 + 10 * (random() - 0.5)
 
     fig, ax = plt.subplots()

@@ -111,13 +111,17 @@ def gaussian_method_of_moments(X_data: np.ndarray, Y_data: np.ndarray) -> tuple:
 
 
 def main():
+    # Create X data
     X_data: List[float] = [biased_x_point + 1 * (random() - 0.5) for biased_x_point in range(50)]
     X_data: np.ndarray = np.array(X_data, dtype=np.float32)
 
+    # Create Y data - Gauss
     Y_data: np.ndarray = np.abs(Gauss(X_data, 100, 25, 5) + 0 * (random() - 0.5))
 
+    # Define plot
     fig, (ax, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 4))
 
+    # Fit using regression
     print("Regression:")
     ax.plot(X_data, Y_data, 'ko', label="Data points")
 
@@ -134,6 +138,7 @@ def main():
             horizontalalignment='center', verticalalignment='center',
             transform=ax.transAxes, color='blue')
 
+    # Fit using Method of moments
     print("Method of moments:")
     ax2.plot(X_data, Y_data, 'ko', label="Data points")
 
@@ -150,6 +155,7 @@ def main():
              horizontalalignment='center', verticalalignment='center',
              transform=ax.transAxes, color='green')
 
+    # Fit using Differential optimization
     print("Differential optimization:")
     ax3.plot(X_data, Y_data, 'ko', label="Data points")
 

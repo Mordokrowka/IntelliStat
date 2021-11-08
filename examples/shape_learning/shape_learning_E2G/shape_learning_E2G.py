@@ -6,23 +6,21 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from IntelliStat.datasets.dataset import Dataset
-from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
+from IntelliStat.generic_builders import ShapeBuilder, build_model
 from IntelliStat.generic_builders.component_builder.components import Gauss
+from IntelliStat.generic_builders.utils import load_configuration
 
 
 def main():
-    # Initialize model builder
-    builder = ModelBuilder()
-
     # Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
     # Build neural network model
-    EvolutionalNN = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+    EvolutionalNN = build_model(config_file=config_file, config_schema_file=config_schema)
 
-    # Configuration
-    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    # Load Configuration
+    configuration = load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
     batch_size: int = configuration.batch_size
 

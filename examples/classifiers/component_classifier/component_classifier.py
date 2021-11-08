@@ -7,23 +7,21 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from IntelliStat.datasets import Dataset
-from IntelliStat.generic_builders import ModelBuilder, ShapeBuilder
+from IntelliStat.generic_builders import ShapeBuilder, build_model
+from IntelliStat.generic_builders.utils import load_configuration
 from IntelliStat.neural_networks import BaseNeuralNetwork
 
 
 def model_classifier():
-    # Initialize model builder
-    builder = ModelBuilder()
-
     # Config and validation file
     config_schema = Path(__file__).parent / 'resources/config_schema.json'
     config_file = Path(__file__).parent / 'resources/config.json'
 
     # Build neural network model
-    EvolutionalNN: BaseNeuralNetwork = builder.build_model(config_file=config_file, config_schema_file=config_schema)
+    EvolutionalNN: BaseNeuralNetwork = build_model(config_file=config_file, config_schema_file=config_schema)
 
-    # Configuration
-    configuration = builder.load_configuration(config_file=config_file, config_schema_file=config_schema)
+    # Load Configuration
+    configuration = load_configuration(config_file=config_file, config_schema_file=config_schema)
     epoch: int = configuration.epoch
     samples: int = configuration.samples
     batch_size: int = configuration.batch_size

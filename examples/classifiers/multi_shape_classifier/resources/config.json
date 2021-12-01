@@ -14,5 +14,10 @@
   "epoch": 100,
   "samples": 1400,
   "test_dataset_size": 0.3,
-  "shapes": 3
+  "shapes": 3,
+  "root": {
+	"root_file_path": "D:\\Documents\\studia\\semestr7\\inzynierka\\IntelliStat\\examples\\classifiers\\multi_shape_classifier\\test.root",
+	"branch_names": ["Gauss", "Exp", "Linear"],
+	"update": true
+  }
 }

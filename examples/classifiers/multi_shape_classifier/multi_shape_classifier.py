@@ -1,6 +1,5 @@
 import math
 from pathlib import Path
-from pprint import pprint
 from random import random
 from typing import List
 
@@ -12,6 +11,7 @@ from IntelliStat.datasets import Dataset
 from IntelliStat.generic_builders import ShapeBuilder, build_model
 from IntelliStat.generic_builders.utils import load_configuration
 from IntelliStat.neural_networks import BaseNeuralNetwork
+from IntelliStat.root_utils import root_utils
 
 
 def multi_shape_classifier():
@@ -64,6 +64,14 @@ def multi_shape_classifier():
             X_data[i + shape * samples] = x_data
             Y_data[i + shape * samples] = shapes_area / np.sum(shapes_area)
 
+    # Save train data to root file
+    branches = {branch_name: shape_participation for branch_name, shape_participation
+                in zip(configuration.root.branch_names, np.hsplit(Y_data, configuration.shapes))}
+    root_utils.save_data_to_root(root_file_path=configuration.root.root_file_path,
+                                 item_name=f"{configuration.shapes * configuration.samples}",
+                                 branches=branches,
+                                 update=configuration.root.update)
+
     # Split data to test/train datasets
     X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
 
@@ -75,8 +83,6 @@ def multi_shape_classifier():
 
     # Test trained model
     Y_NN = EvolutionalNN.test(X_test)
-    pprint(Y_NN)
-    pprint(Y_test)
 
     accuracy: int = 0
     for i in range(len(Y_NN)):
@@ -89,20 +95,10 @@ def multi_shape_classifier():
     accuracy = accuracy / Y_NN.shape[0]
     print("Reached accuracy: ", accuracy)
 
-    # # Visualization
+    # Visualization
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 0], 100, alpha=0.5, range=[0, 1], label='Gauss')
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 1], 100, alpha=0.5, range=[0, 1], label='Gauss+Gauss')
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 2], 100, alpha=0.5, range=[0, 1], label='Gauss+Gauss+Gauss')
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 3], 100, alpha=0.5, range=[0, 1], label='Gauss+Gauss+Exp')
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 4], 100, alpha=0.5, range=[0, 1], label='Gauss+Exp')
-    # n, bins, patches = ax[0, 0].hist(Y_NN[idx_gge, 5], 100, alpha=0.5, range=[0, 1], label='Exp')
-    # ax[0, 0].set_xlabel('Class A (Gauss+Gauss+Exp)')
-    # ax[0, 0].set_ylabel('Number of counts')
-    # ax[0, 0].legend(loc='upper right')
-    # ax[0, 0].set_title('Class affiliation probability')
-    #
+
     ax[1, 0].plot(range(0, epoch), EvolutionalNN.loss_vector, 'k-', label="Loss function")
     ax[1, 0].set_xlabel('Epoch number')
     ax[1, 0].set_ylabel('Loss function')
@@ -117,51 +113,10 @@ def multi_shape_classifier():
     X_plot = x_data
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-')
 
-    # ax[0, 1].plot(np.linspace(0, 10, 40, endpoint=False), X_test[0], 'g-', label="Test")
+    ax[0, 1].plot(np.linspace(0, 10, 40, endpoint=False), X_test[0], 'g-', label="Test")
     ax[0, 1].set_xlabel('X argument')
     ax[0, 1].set_ylabel('Y')
-    # ax[0, 1].legend(loc='upper right')
     ax[0, 1].set_title('Exemplary training G + E + Linear + Double E')
-
-    # n, bins, patches = ax[0, 0].hist(np.mean(np.abs(Y_NN[:1] - Y_test[:1]) / Y_test[:1], axis=0), 100, alpha=0.5, color = 'blue', label='St. dev.')
-    # ax[0, 0].set_tite('Average relative error')
-    # ax[0, 1].set_xlabel('Relative error')
-    #
-    # ax[0, 0].set_ylabel('Number of counts')
-
-    # ax[0,1].plot(np.linspace(0, 10, vis_len, endpoint=False), In_data[2], 'r-', label="Gauss no. 2")
-    # ax[0,1].plot(np.linspace(0, 10, vis_len, endpoint=False), In_data[3], 'b-', label="Gauss no. 3")
-
-    # ax[0,0].plot(Y_NN[1][0], Gauss(Y_NN[1][0], 1, Y_NN[1][0], Y_NN[1][1]), 'k*', label="Predicted mean")
-    # ax[0,0].plot(Y_NN[2][0], Gauss(Y_NN[2][0], 1, Y_NN[2][0], Y_NN[2][1]), 'r*', label="Predicted mean")
-    # ax[0,0].plot(Y_NN[3][0], Gauss(Y_NN[3][0], 1, Y_NN[3][0], Y_NN[3][1]), 'b*', label="Predicted mean")
-    # ax[0,0].set_xlabel('Argument X')
-    # ax[0,0].set_ylabel('Value Y')
-
-    # leg = ax[0,0].legend(loc = 'upper left', prop={'size':7})
-
-    # A, u, sigma = round(A, 8), round(u, 8), round(sigma, 8)
-    # a_opt, b_opt = round(a_opt, 8), round(b_opt, 8)
-    # ax[0,0].text(0.45, 1.12, " Mean: " + str(round(Y_data[1][0],3)) + ", NN prediction: " + str(round(Y_NN[1][0],3)),
-    #    horizontalalignment='center', verticalalignment='center',
-    #    transform=ax[0,0].transAxes, color = 'k')
-    # ax[0,0].text(0.45, 1.07, " Mean: " + str(round(Y_data[2][0], 3)) + ", NN prediction: " + str(round(Y_NN[2][0], 3)),
-    #        horizontalalignment='center', verticalalignment='center',
-    #        transform=ax[0,0].transAxes, color='r')
-    # ax[0,0].text(0.45, 1.02, " Mean: " + str(round(Y_data[3][0], 3)) + ", NN prediction: " + str(round(Y_NN[3][0], 3)),
-    #        horizontalalignment='center', verticalalignment='center',
-    #        transform=ax[0,0].transAxes, color='b')
-
-    # n, bins, patches = ax[0, 1].hist(Y_data[:,0] - Y_NN[:,0], 100, alpha=0.5, color = 'red', label='Mean')
-    # ax[0, 1].set_xlabel('Real - NN prediction')
-    # ax[0, 1].set_ylabel('Number of counts')
-
-    # n, bins, patches = ax[1, 1].hist(Y_data[:,1] - Y_NN[:,1], 100, alpha=0.5, color = 'blue', label='St. dev.')
-    # ax[1, 1].set_xlabel('Real - NN prediction')
-    # ax[1, 1].set_ylabel('Number of counts')
-    # axs[0, 1].axvline(x=np.mean(Mass_B_data), color='r', linestyle='dashed')
-    # ax[0, 1].legend(loc='upper right')
-    # ax[1, 1].legend(loc='upper right')
 
     plt.show()
 

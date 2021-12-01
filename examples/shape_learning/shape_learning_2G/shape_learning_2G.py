@@ -32,7 +32,7 @@ def main():
     Y_data = np.array(Y_data, dtype=np.float32)
 
     # Create Double Gauss shape using ShapeBuilder
-    shape = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
+    shape = ShapeBuilder.Gauss_Gauss.build_shape(X_data)[0]
 
     # Create Dataset
     dataset = Dataset(shape, Y_data)
@@ -41,7 +41,7 @@ def main():
     EvolutionalNN.train(dataset, epoch, batch_size)
 
     # After training, checking performance
-    test_data = ShapeBuilder.Gauss_Gauss.build_shape(X_data)
+    test_data = ShapeBuilder.Gauss_Gauss.build_shape(X_data)[0]
     Y_NN = EvolutionalNN.test(test_data)
 
     # Visualization

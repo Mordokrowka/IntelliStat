@@ -1,7 +1,7 @@
 import random
 from enum import Enum, EnumMeta, auto, unique
 from pathlib import Path
-from typing import Union
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -50,6 +50,8 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
     G_5 = '5G', (5, 0), 'gauss_5.json'
     G_6 = '6G', (6, 0), 'gauss_6.json'
     G_7 = '7G', (7, 0), 'gauss_7.json'
+    Exp_Exp = 'Exp+Exp', (0, 2), 'exp_2.json'
+
 
     def __new__(cls, *values):
         obj = object.__new__(cls)
@@ -67,14 +69,25 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
         self.config_file: Path = self.shapes_folder / config_file
         self.config_schema_file: Path = Path(__file__).parent / 'schema/shape_schema.json'
 
-    def build_shape(self, x: np.ndarray) -> np.ndarray:
+    def build_shape(self, x: np.ndarray, components_params=None) -> Tuple[np.ndarray, dict]:
         config = load_configuration(config_file=self.config_file, config_schema_file=self.config_schema_file)
         shape: np.ndarray = np.zeros(x.shape, dtype=np.float32)
-
-        for component in config.components:
-            for _ in range(component.amount):
-                component_params = {}
-                for param in component.params:
-                    component_params[param.name] = param.value + random.uniform(*param.range)
+        if not components_params:
+            components_params = []
+        for component_idx, component in enumerate(config.components, start=1):
+            for i in range(component.amount):
+                try:
+                    component_params = components_params[component_idx * i]
+                except IndexError:
+                    component_params = {}
+                    for param in component.params:
+                        component_params[param.name] = param.value + random.uniform(*param.range)
+                    components_params.append(component_params)
                 shape += ComponentBuilder(component.name).generate_component(x, **component_params)
-        return shape
+        from collections import defaultdict
+
+        shape_params = defaultdict(float)
+        for params in components_params:
+            for key, value in params.items():
+                shape_params[key] += value
+        return shape, shape_params

@@ -33,7 +33,7 @@ def main():
     Y_data = np.array(Y_data, dtype=np.float32)
 
     # Create Double Gauss + Exp shape using ShapeBuilder
-    shape = ShapeBuilder.Gauss_Gauss_Exp.build_shape(X_data)
+    shape = ShapeBuilder.Gauss_Gauss_Exp.build_shape(X_data)[0]
 
     # Create Dataset
     dataset = Dataset(shape, Y_data)

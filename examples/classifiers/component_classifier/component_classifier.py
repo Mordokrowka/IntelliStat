@@ -41,7 +41,7 @@ def model_classifier():
             shape = ShapeBuilder[c]
             X_data[i + c * samples] = shape.build_shape(
                 x=X_data[i + c * samples]
-            )
+            )[0]
             Y_data[i + c * samples] = shape.class_vector
 
     # Split data to test/train datasets
@@ -92,7 +92,7 @@ def model_classifier():
 
     X_plot = [X / 40 for X in range(400)]
     X_plot = np.array(X_plot, dtype=np.float32)
-    X_plot = ShapeBuilder('7G').build_shape(X_plot)
+    X_plot = ShapeBuilder('7G').build_shape(X_plot)[0]
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-', label="7G(x)")
     ax[0, 1].set_xlabel('X argument')
     # ax[0, 1].set_ylabel('GGE(x)')

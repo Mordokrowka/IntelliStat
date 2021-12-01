@@ -50,8 +50,6 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
     G_5 = '5G', (5, 0), 'gauss_5.json'
     G_6 = '6G', (6, 0), 'gauss_6.json'
     G_7 = '7G', (7, 0), 'gauss_7.json'
-    Exp_Exp = 'Exp+Exp', (0, 2), 'exp_2.json'
-
 
     def __new__(cls, *values):
         obj = object.__new__(cls)

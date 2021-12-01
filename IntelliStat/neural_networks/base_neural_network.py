@@ -9,16 +9,7 @@ from torch.utils.data import Dataset
 class BaseNeuralNetwork(ABC):
     def __init__(self):
         self.loss_vector: Optional[list] = None
-        self._model = None
-
-    @property
-    @abstractmethod
-    def model(self):
-        pass
-
-    @model.setter
-    def model(self, model):
-        self._model = model
+        self.model = None
 
     @abstractmethod
     def train(self, data: Dataset, epochs: int, batch: Optional[int]):

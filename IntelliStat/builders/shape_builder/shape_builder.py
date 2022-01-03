@@ -1,27 +1,18 @@
 import random
-from enum import Enum, EnumMeta, auto, unique
+from collections import defaultdict
+from enum import Enum, auto, unique
 from pathlib import Path
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 import numpy as np
 
-from IntelliStat.generic_builders.utils import load_configuration
-from IntelliStat.generic_builders import ComponentBuilder
-
-
-class ShapeBuilderEnumMeta(EnumMeta):
-    """Add option to access by index to ShapeBuilder"""
-    def __getitem__(self, index: int):
-        if not isinstance(index, int):
-            raise TypeError(f"`index` {index} is not an int")
-        if index >= super().__len__():
-            raise KeyError("Key error")
-
-        return list(self)[index]
+from IntelliStat.utils import load_configuration
+from IntelliStat.builders import ComponentBuilder
+from IntelliStat.builders.utils.builder_enum_meta import BuilderEnumMeta
 
 
 @unique
-class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
+class ShapeBuilder(Enum, metaclass=BuilderEnumMeta):
     """Builds specified shapes
 
     Available shapes:
@@ -62,27 +53,30 @@ class ShapeBuilder(Enum, metaclass=ShapeBuilderEnumMeta):
 
     def __init__(self, shape_name: str, components_vector: tuple, config_file: Union[Path, str]):
         self.class_vector = components_vector
-        self.shapes_folder: Path = Path(__file__).parent / 'shapes/'
         self.shape_name: str = shape_name
-        self.config_file: Path = self.shapes_folder / config_file
-        self.config_schema_file: Path = Path(__file__).parent / 'schema/shape_schema.json'
+        base_dir = Path(__file__).parent
+        self.config_file: Path = base_dir / 'shapes/' / config_file
+        self.config_schema_file: Path = base_dir / 'schema/shape_schema.json'
 
     def build_shape(self, x: np.ndarray, components_params=None) -> Tuple[np.ndarray, dict]:
-        config = load_configuration(config_file=self.config_file, config_schema_file=self.config_schema_file)
+        config = load_configuration(config_file_path=self.config_file, config_schema_file_path=self.config_schema_file)
         shape: np.ndarray = np.zeros(x.shape, dtype=np.float32)
         if not components_params:
             components_params = []
         for component_idx, component in enumerate(config.components, start=1):
+            component_builder = ComponentBuilder(component.name)
             for i in range(component.amount):
                 try:
-                    component_params = components_params[component_idx * i]
+                    params = components_params[component_idx * i]
                 except IndexError:
-                    component_params = {}
+                    params = {}
                     for param in component.params:
-                        component_params[param.name] = param.value + random.uniform(*param.range)
-                    components_params.append(component_params)
-                shape += ComponentBuilder(component.name).generate_component(x, **component_params)
-        from collections import defaultdict
+                        param_value = param.value
+                        if param.range:
+                            param_value += random.uniform(*param.range)
+                        params[param.name] = param_value
+                    components_params.append(params)
+                shape += component_builder.generate_component(x, **params)
 
         shape_params = defaultdict(float)
         for params in components_params:

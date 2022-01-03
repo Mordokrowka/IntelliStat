@@ -1,5 +1,5 @@
-import torch.utils.data
 import numpy as np
+import torch.utils.data
 
 
 class Dataset(torch.utils.data.Dataset):

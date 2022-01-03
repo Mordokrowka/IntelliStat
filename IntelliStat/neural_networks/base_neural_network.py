@@ -12,10 +12,10 @@ class BaseNeuralNetwork(ABC):
         self.model = None
 
     @abstractmethod
-    def train(self, data: Dataset, epochs: int, batch: Optional[int]):
+    def train(self, dataset: Dataset, epochs: int, batch: Optional[int]):
         """Trains neural network
 
-        :param data: due to the PyTorch requirements torch.utils.data.Dataset needs to be used as a data provider
+        :param dataset: due to the PyTorch requirements torch.utils.data.Dataset needs to be used as a data provider
         :param epochs: numbers of training epochs
         :param batch: size of batch
         """

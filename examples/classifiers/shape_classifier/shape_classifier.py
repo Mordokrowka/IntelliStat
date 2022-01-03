@@ -7,8 +7,8 @@ from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from IntelliStat.datasets import Dataset
-from IntelliStat.generic_builders import ShapeBuilder, build_model
-from IntelliStat.generic_builders.utils import load_configuration
+from IntelliStat.builders import ShapeBuilder, build_model
+from IntelliStat.utils import load_configuration
 from IntelliStat.neural_networks import BaseNeuralNetwork
 
 
@@ -18,10 +18,10 @@ def shape_classifier():
     config_file = Path(__file__).parent / 'resources/config.json'
 
     # Build neural network model
-    EvolutionalNN: BaseNeuralNetwork = build_model(config_file=config_file, config_schema_file=config_schema)
+    EvolutionalNN: BaseNeuralNetwork = build_model(config_file_path=config_file, config_schema_file_path=config_schema)
 
     # Load Configuration
-    configuration = load_configuration(config_file=config_file, config_schema_file=config_schema)
+    configuration = load_configuration(config_file_path=config_file, config_schema_file_path=config_schema)
     epoch: int = configuration.epoch
     samples: int = configuration.samples
     batch_size: int = configuration.batch_size

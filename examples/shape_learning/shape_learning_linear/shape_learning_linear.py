@@ -5,8 +5,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from IntelliStat.datasets.dataset import Dataset
-from IntelliStat.generic_builders import build_model
-from IntelliStat.generic_builders.utils import load_configuration
+from IntelliStat.builders import build_model
+from IntelliStat.utils import load_configuration
 
 
 def main():
@@ -15,10 +15,10 @@ def main():
     config_file = Path(__file__).parent / 'resources/config.json'
 
     # Build neural network model
-    EvolutionalNN = build_model(config_file=config_file, config_schema_file=config_schema)
+    EvolutionalNN = build_model(config_file_path=config_file, config_schema_file_path=config_schema)
 
     # Load Configuration
-    configuration = load_configuration(config_file=config_file, config_schema_file=config_schema)
+    configuration = load_configuration(config_file_path=config_file, config_schema_file_path=config_schema)
     epoch: int = configuration.epoch
     batch_size: int = configuration.batch_size
 

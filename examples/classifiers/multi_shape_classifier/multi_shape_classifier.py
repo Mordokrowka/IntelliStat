@@ -1,17 +1,15 @@
 import math
 from pathlib import Path
 from random import random
-from typing import List
 
 import numpy as np
 from matplotlib import pyplot as plt
 from sklearn.model_selection import train_test_split
 
 from IntelliStat.datasets import Dataset
-from IntelliStat.generic_builders import ShapeBuilder, build_model
-from IntelliStat.generic_builders.utils import load_configuration
+from IntelliStat.builders import ShapeBuilder, build_model
+from IntelliStat.utils import load_configuration, root_utils
 from IntelliStat.neural_networks import BaseNeuralNetwork
-from IntelliStat.root_utils import root_utils
 
 
 def multi_shape_classifier():
@@ -20,60 +18,63 @@ def multi_shape_classifier():
     config_file = Path(__file__).parent / 'resources/config.json'
 
     # Build neural network model
-    EvolutionalNN: BaseNeuralNetwork = build_model(config_file=config_file, config_schema_file=config_schema)
+    EvolutionalNN: BaseNeuralNetwork = build_model(config_file_path=config_file, config_schema_file_path=config_schema)
 
     # Load Configuration
-    configuration = load_configuration(config_file=config_file, config_schema_file=config_schema)
+    configuration = load_configuration(config_file_path=config_file,
+                                       config_schema_file_path=config_schema)
     epoch: int = configuration.epoch
     samples: int = configuration.samples
     batch_size: int = configuration.batch_size
     shapes: int = configuration.shapes
 
-    # Create X data
-    X_data: List[List[float]] = [[X / 4 for X in range(40)] for _ in range(shapes * samples)]
-    X_data: np.ndarray = np.array(X_data, dtype=np.float32)
+    # Create data array
+    data = np.zeros(shape=[samples, 40], dtype=np.float32)
 
-    # Initialize Y data
+    # Create labels array
+    labels: np.ndarray = np.zeros((data.shape[0], shapes), dtype=np.float32)
+
     def build_linear(x):
         a = 0.05
         b = 0.05 * random()
         return a * x + b * random(), {"a": a, "b": b}
 
-    Y_data: np.ndarray = np.zeros((X_data.shape[0], shapes), dtype=np.float32)
-    shapes_builders = [
+    shape_builders = [
         ShapeBuilder.Gauss.build_shape,
         ShapeBuilder.Exp.build_shape,
         build_linear,
     ]
 
-    shape_areas_calculator = [
+    shape_area_calculators = [
         lambda A, sigma, u: A * math.sqrt(math.pi / u),
         lambda B, b: (B - B * math.e ** (-b * 10) / b),
         lambda a, b: 10 * (a * 10 + 2 * b) / 2,
     ]
 
-    # Fill Y data using ShapeBuilder
-    for shape in range(shapes):
-        for i in range(samples):
-            shapes_area = np.zeros(shapes)
-            x_data = np.zeros(X_data[i + shape * samples].shape)
-            for idx, (shape_builder, calculate_shape_area) in enumerate(zip(shapes_builders, shape_areas_calculator)):
-                shape_data, shape_params = shape_builder(X_data[i + shape * samples])
-                shapes_area[idx] = calculate_shape_area(**shape_params)
-                x_data += shape_data
-            X_data[i + shape * samples] = x_data
-            Y_data[i + shape * samples] = shapes_area / np.sum(shapes_area)
+    # Fill data and labels array
+    x = np.array([X / 4 for X in range(40)], dtype=np.float32)
+
+    for i in range(samples):
+        shapes_area = np.zeros(shapes)
+        final_shape = np.zeros(x.shape)
+        for idx, shape_data in enumerate(zip(shape_builders, shape_area_calculators)):
+            shape_builder, calculate_shape_area = shape_data
+            shape, shape_params = shape_builder(x)
+            shapes_area[idx] = calculate_shape_area(**shape_params)
+            final_shape += shape
+        data[i] = final_shape
+        labels[i] = shapes_area / np.sum(shapes_area)
 
     # Save train data to root file
     branches = {branch_name: shape_participation for branch_name, shape_participation
-                in zip(configuration.root.branch_names, np.hsplit(Y_data, configuration.shapes))}
+                in zip(configuration.root.branch_names, np.hsplit(labels, shapes))}
     root_utils.save_data_to_root(root_file_path=configuration.root.root_file_path,
-                                 item_name=f"{configuration.shapes * configuration.samples}",
+                                 item_name=f"{shapes * configuration.samples}",
                                  branches=branches,
                                  update=configuration.root.update)
 
     # Split data to test/train datasets
-    X_train, X_test, Y_train, Y_test = train_test_split(X_data, Y_data, test_size=configuration.test_dataset_size)
+    X_train, X_test, Y_train, Y_test = train_test_split(data, labels, test_size=configuration.test_dataset_size)
 
     # Define dataset
     dataset = Dataset(X_train, Y_train)
@@ -98,8 +99,19 @@ def multi_shape_classifier():
     # Visualization
     fig, ax = plt.subplots(2, 2)
     fig.set_size_inches(8, 8)
+    SMALL_SIZE = 8
+    MEDIUM_SIZE = 10
+    BIGGER_SIZE = 12
 
+    plt.rc('font', size=12)  # controls default text sizes
+    plt.rc('axes', titlesize=15)  # fontsize of the axes title
+    plt.rc('axes', labelsize=15)  # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=12)  # fontsize of the tick labels
+    plt.rc('ytick', labelsize=12)  # fontsize of the tick labels
+    # plt.rc('legend', fontsize=SMALL_SIZE)  # legend fontsize
+    plt.rc('figure', titlesize=14)  # fontsize of the figure title
     ax[1, 0].plot(range(0, epoch), EvolutionalNN.loss_vector, 'k-', label="Loss function")
+    ax[1, 0].set_title("Loss function")
     ax[1, 0].set_xlabel('Epoch number')
     ax[1, 0].set_ylabel('Loss function')
     ax[1, 0].set_yscale('log')
@@ -108,16 +120,16 @@ def multi_shape_classifier():
     X_plot = np.array(X_plot, dtype=np.float32)
 
     x_data = np.zeros(X_plot.shape)
-    for shape_builder in shapes_builders:
+    for shape_builder in shape_builders:
         x_data += shape_builder(X_plot)[0]
     X_plot = x_data
     ax[0, 1].plot(np.linspace(0, 10, 400, endpoint=False), X_plot, 'r-')
-
-    ax[0, 1].plot(np.linspace(0, 10, 40, endpoint=False), X_test[0], 'g-', label="Test")
-    ax[0, 1].set_xlabel('X argument')
+    #
+    ax[0, 1].plot(np.linspace(0, 10, 40, endpoint=False), X_test[0], 'g-', label="Generated shape")
+    ax[0, 1].set_xlabel('X')
     ax[0, 1].set_ylabel('Y')
-    ax[0, 1].set_title('Exemplary training G + E + Linear + Double E')
-
+    ax[0, 1].set_title('Generated shape as sum of gauss, exp and linear function')
+    plt.legend(loc="upper right")
     plt.show()
 
 
